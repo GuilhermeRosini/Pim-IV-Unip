@@ -1,0 +1,380 @@
+/* ==================== BASE ==================== */
+* {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    box-sizing: border-box;
+}
+
+/* ==================== ANIMAÇÕES DE ENTRADA ==================== */
+/* Usadas em cards, seções e páginas para dar uma sensação de "carregamento suave" */
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+.slide-right {
+    animation: slideRight 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+}
+
+/* ==================== EFEITOS VISUAIS ==================== */
+/* "Vidro fosco" usado na barra de navegação */
+.glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+}
+
+/* Efeito de elevação ao passar o mouse (cards de planos, funcionalidades, etc.) */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.plan-option>.p-5 {
+    padding: 0;
+}
+
+.dash-nav-btn.plan-locked {
+    opacity: 0.45;
+    filter: grayscale(0.2);
+    cursor: not-allowed;
+}
+
+.dash-section.plan-locked {
+    opacity: 0.45;
+    filter: grayscale(0.15) brightness(0.9);
+}
+
+/* Botão principal (gradiente azul -> verde) */
+.btn-primary {
+    background: linear-gradient(135deg, #1570f5, #0aab48);
+    transition: all 0.3s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(21, 112, 245, 0.35);
+}
+
+/* Fundo escuro da seção "hero" (topo da landing page) */
+.hero-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+
+/* Texto com gradiente (destaque no título principal) */
+.text-gradient {
+    background: linear-gradient(135deg, #2b8fff, #14d45b);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Indicador de status "online" (usado na teleconsulta) */
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #14d45b;
+    animation: pulse 1.5s infinite;
+}
+
+/* ==================== FORMULÁRIOS ==================== */
+.input-style {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-style:focus {
+    border-color: #1570f5;
+    box-shadow: 0 0 0 3px rgba(21, 112, 245, 0.1);
+}
+
+/* ==================== NAVEGAÇÃO ENTRE "PÁGINAS" (SPA) ==================== */
+/* O app.js alterna a classe .active para simular várias páginas num único HTML */
+.page {
+    display: none;
+}
+
+.page.active {
+    display: block;
+}
+
+/* ==================== NOTIFICAÇÕES (TOAST) ==================== */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 500;
+    max-width: 320px;
+    animation: slideRight 0.4s ease-out;
+}
+
+.toast-success {
+    background: linear-gradient(135deg, #0aab48, #14d45b);
+}
+
+.toast-error {
+    background: linear-gradient(135deg, #e11d48, #f43f5e);
+}
+
+/* ==================== MODAIS ==================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.dependent-modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.dependent-card {
+    position: relative;
+    min-width: 0;
+}
+
+.dependent-card-info {
+    min-width: 0;
+    flex: 1 1 auto;
+    padding-right: 0.25rem;
+}
+
+.dependent-delete-button {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 2.5rem;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+}
+
+.assistant-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1100;
+    width: 56px;
+    height: 56px;
+    border: 0;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(135deg, #1570f5, #0aab48);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.assistant-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 92px;
+    z-index: 1100;
+    width: min(360px, calc(100vw - 32px));
+    overflow: hidden;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+    border: 1px solid #e5e7eb;
+}
+
+.assistant-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.assistant-suggestion {
+    border: 1px solid #bce0ff;
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: #1059e1;
+    background: #eef7ff;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.assistant-suggestion:hover {
+    border-color: #1570f5;
+    background: #d9edff;
+    transform: translateY(-1px);
+}
+
+.assistant-suggestion:focus-visible {
+    outline: 3px solid rgba(21, 112, 245, 0.25);
+    outline-offset: 2px;
+}
+
+.support-message {
+    max-width: 90%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    color: #374151;
+    background: #d9edff;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.support-message-user {
+    margin-left: auto;
+    color: #fff;
+    background: #1570f5;
+}
+
+.teleconsulta-shell {
+    min-height: 100dvh;
+}
+
+.teleconsulta-stage {
+    min-height: 0;
+}
+
+@media (max-width: 640px) {
+    .dependent-card {
+        padding-right: 0.75rem;
+    }
+
+    .dependent-card-info {
+        padding-right: 0.5rem;
+    }
+
+    .modal-overlay {
+        align-items: flex-start;
+    }
+
+    .dependent-modal-content {
+        max-height: calc(100dvh - 2rem);
+        margin-top: 0;
+        margin-bottom: 0;
+        padding: 1.25rem;
+    }
+
+    .tele-self-view {
+        top: 1rem;
+        right: 1rem;
+        bottom: auto;
+        width: 6rem;
+        height: 4.5rem;
+    }
+
+    .teleconsulta-shell {
+        min-height: 100svh;
+    }
+
+    .teleconsulta-stage {
+        flex: 1 1 auto;
+        min-height: calc(100svh - 132px);
+        padding: 24px 16px 96px;
+    }
+
+    .teleconsulta-controls {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 5;
+        padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    }
+}
+
+#dash-profile>h2 {
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+}
+
+#profile-form {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 640px) {
+    .assistant-fab {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .assistant-panel {
+        right: 16px;
+        bottom: 84px;
+    }
+}

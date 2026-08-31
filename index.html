@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saúde Plus</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js">
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+  <link rel="shortcut icon" href="icone_coracao.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { jakarta: ['Plus Jakarta Sans', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#eef7ff', 100: '#d9edff', 200: '#bce0ff', 300: '#8eccff', 400: '#53b0ff', 500: '#2b8fff', 600: '#1570f5', 700: '#1059e1', 800: '#1248b6', 900: '#133f8f' },
+            mint: { 50: '#effef4', 100: '#d9ffe6', 200: '#b5fdce', 300: '#7cf9a9', 400: '#3cec7c', 500: '#14d45b', 600: '#0aab48', 700: '#0b863c', 800: '#0e6933', 900: '#0c572c' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+</head>
+
+<body class="h-full bg-gray-50 overflow-auto">
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div><!-- ============ LANDING PAGE ============ -->
+  <div id="page-landing" class="page active">
+    <!-- Nav -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-lg btn-primary flex items-center justify-center">
+            <i data-lucide="heart-pulse" class="w-5 h-5 text-white"></i>
+          </div><span class="text-xl font-bold text-gray-900" id="brand-name">Saúde Plus</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features-section"
+            class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Funcionalidades</a> <a
+            href="#plans-section" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Planos</a>
+          <a href="#about-section" class="text-sm font-medium text-gray-600 hover:text-brand-600 transition">Sobre</a>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="showPage('page-login')"
+            class="text-sm font-semibold text-brand-600 hover:text-brand-700 transition px-4 py-2">Entrar</button>
+          <button onclick="showPage('page-register')"
+            class="btn-primary text-sm font-semibold text-white px-5 py-2.5 rounded-xl">Cadastrar</button>
+        </div>
+      </div>
+    </nav><!-- Hero -->
+    <section class="hero-gradient min-h-[600px] pt-24 pb-16 flex items-center relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-brand-400 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-mint-400 rounded-full blur-3xl"></div>
+      </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 w-full">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div class="slide-up">
+            <div
+              class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-6">
+              <div class="pulse-dot"></div><span class="text-sm text-mint-300 font-medium">Plataforma 100%
+                Digital</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-6">Sua saúde
+              na<br><span class="text-gradient">palma da mão</span></h1>
+            <p class="text-lg text-gray-300 mb-8 max-w-lg">O Saúde Plus não é um convênio médico: é o app que conecta
+              você a convênios e profissionais credenciados, com pagamento simples e acesso digital.</p>
+            <div class="flex flex-wrap gap-4">
+              <button onclick="showPage('page-register')"
+                class="btn-primary text-white font-semibold px-8 py-3.5 rounded-xl text-base">Começar Agora</button>
+            </div>
+          </div>
+          <div class="hidden lg:flex justify-center">
+            <div class="relative">
+              <div
+                class="w-80 h-80 rounded-3xl bg-gradient-to-br from-brand-500/20 to-mint-500/20 border border-white/10 flex items-center justify-center">
+                <div class="text-center">
+                  <div
+                    class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-brand-500 to-mint-500 flex items-center justify-center">
+                    <i data-lucide="stethoscope" class="w-10 h-10 text-white"></i>
+                  </div>
+                  <p class="text-white font-bold text-xl">Telemedicina</p>
+                  <p class="text-gray-400 text-sm mt-1">Consulte de qualquer lugar</p>
+                </div>
+              </div>
+              <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl slide-right">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 bg-mint-100 rounded-full flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-mint-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-gray-800">Consulta agendada</p>
+                    <p class="text-xs text-gray-500">Confirmada com sucesso</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- Features -->
+    <section id="features-section" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Tudo que você precisa</h2>
+          <p class="text-gray-500 text-lg max-w-2xl mx-auto">Uma plataforma completa para cuidar da sua saúde com
+            praticidade e segurança</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-brand-100 flex items-center justify-center mb-5"><i
+                data-lucide="calendar-check" class="w-7 h-7 text-brand-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Agendamento Online</h3>
+            <p class="text-gray-500 text-sm">Agende consultas e exames em poucos cliques, sem filas. Escolha
+              especialidade, médico, data e horário com total flexibilidade.</p>
+          </div>
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-mint-100 flex items-center justify-center mb-5"><i data-lucide="video"
+                class="w-7 h-7 text-mint-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Teleconsulta</h3>
+            <p class="text-gray-500 text-sm">Consulte médicos por vídeo de qualquer lugar, no conforto da sua casa.
+              Economia de tempo e deslocamento.</p>
+          </div>
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center mb-5"><i
+                data-lucide="credit-card" class="w-7 h-7 text-purple-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Carteirinha Digital</h3>
+            <p class="text-gray-500 text-sm">Acesse sua carteirinha digital a qualquer momento. Dados pessoais, plano e
+              ID em um único lugar.</p>
+          </div>
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center mb-5"><i
+                data-lucide="activity" class="w-7 h-7 text-blue-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Histórico Médico</h3>
+            <p class="text-gray-500 text-sm">Mantenha registros completos de todas as suas consultas, exames e
+              recomendações médicas em um só lugar.</p>
+          </div>
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-orange-100 flex items-center justify-center mb-5"><i data-lucide="clock"
+                class="w-7 h-7 text-orange-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Lembretes Automáticos</h3>
+            <p class="text-gray-500 text-sm">Receba notificações automáticas sobre seus agendamentos e nunca mais perca
+              uma consulta importante.</p>
+          </div>
+          <div class="card-hover bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center mb-5"><i
+                data-lucide="shield-check" class="w-7 h-7 text-green-600"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Segurança Garantida</h3>
+            <p class="text-gray-500 text-sm">Seus dados são protegidos com criptografia de ponta a ponta e total
+              conformidade com LGPD e regulamentações de saúde.</p>
+          </div>
+        </div>
+      </div>
+    </section><!-- Plans -->
+    <section id="plans-section" class="py-20 bg-gray-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Escolha seu Plano</h2>
+          <p class="text-gray-500 text-lg max-w-2xl mx-auto">Compare a faixa de atendimento e encontre o nível ideal
+            para sua jornada de saúde.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="bg-white rounded-2xl border border-gray-100 p-8 card-hover flex flex-col">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Básico</h3>
+              <p class="text-gray-500 text-sm">Para cuidados essenciais e redes regionais</p>
+            </div>
+            <div class="mb-6">
+              <p class="text-3xl font-extrabold text-brand-600">R$ 49<span class="text-lg text-gray-500">/mês</span></p>
+              <p class="text-xs text-gray-400 mt-1">acesso à plataforma Saúde Plus</p>
+            </div>
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="text-sm text-gray-600">
+                <p class="font-semibold text-gray-800 mb-3">Referências de convênios</p>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/hapvida.com.br" alt="Logo Hapvida"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Hapvida<br>Nosso Plano</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/notredameintermedica.com.br" alt="Logo NotreDame"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">NotreDame<br>Smart</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/unimed.coop.br" alt="Logo Unimed"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Unimed<br>regional</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> Agendamento e carteirinha digital</li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> Até 10 agendamentos mensais entre consultas, exames e teleconsultas</li>
+              <li class="flex items-start gap-2 text-xs text-gray-400"><i data-lucide="info"
+                  class="w-4 h-4 mt-0.5"></i><span>Exemplos de linhas; disponibilidade depende da cidade e do
+                  contrato.</span></li>
+            </ul><button onclick="showPage('page-register')"
+              class="w-full border border-brand-600 text-brand-600 font-semibold py-3 rounded-xl hover:bg-brand-50 transition">Escolher
+              Plano</button>
+          </div>
+          <div class="bg-white rounded-2xl border-2 border-brand-600 p-8 card-hover flex flex-col relative">
+            <div class="absolute -top-3 left-6 bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+              MAIS POPULAR
+            </div>
+            <div class="mb-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Premium</h3>
+              <p class="text-gray-500 text-sm">Mais rede, especialistas e abrangência</p>
+            </div>
+            <div class="mb-6">
+              <p class="text-3xl font-extrabold text-brand-600">R$ 99<span class="text-lg text-gray-500">/mês</span></p>
+              <p class="text-xs text-gray-400 mt-1">acesso à plataforma Saúde Plus</p>
+            </div>
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="text-sm text-gray-600">
+                <p class="font-semibold text-gray-800 mb-3">Referências de convênios</p>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/amil.com.br" alt="Logo Amil"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Amil<br>S380</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/unimed.coop.br" alt="Logo Unimed"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Unimed<br>nacional</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/sulamerica.com.br" alt="Logo SulAmérica"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">SulAmérica<br>Exato</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> Até 20 agendamentos mensais entre consultas, exames e teleconsultas</li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> 4 teleconsultas pela plataforma/mês</li>
+              <li class="flex items-start gap-2 text-xs text-gray-400"><i data-lucide="info"
+                  class="w-4 h-4 mt-0.5"></i><span>Exemplos de linhas; rede e abrangência variam por região.</span></li>
+            </ul><button onclick="showPage('page-register')"
+              class="w-full btn-primary text-white font-semibold py-3 rounded-xl hover:shadow-lg transition">Escolher
+              Plano</button>
+          </div>
+          <div class="bg-white rounded-2xl border border-gray-100 p-8 card-hover flex flex-col">
+            <div class="mb-6">
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Premium Saúde Plus</h3>
+              <p class="text-gray-500 text-sm">Para quem busca padrão elevado e cobertura ampla</p>
+            </div>
+            <div class="mb-6">
+              <p class="text-3xl font-extrabold text-brand-600">R$ 199<span class="text-lg text-gray-500">/mês</span>
+              </p>
+              <p class="text-xs text-gray-400 mt-1">acesso à plataforma Saúde Plus</p>
+            </div>
+            <ul class="space-y-3 mb-8 flex-1">
+              <li class="text-sm text-gray-600">
+                <p class="font-semibold text-gray-800 mb-3">Referências de convênios</p>
+                <div class="grid grid-cols-3 gap-2">
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/amil.com.br" alt="Logo Amil"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Amil<br>One</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/bradescoseguros.com.br" alt="Logo Bradesco Saúde"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">Bradesco Saúde<br>Nacional Plus</span>
+                  </div>
+                  <div class="text-center">
+                    <div class="h-10 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                        src="https://logo.clearbit.com/sulamerica.com.br" alt="Logo SulAmérica"
+                        class="max-h-7 max-w-full object-contain" loading="lazy"></div><span
+                      class="block text-xs mt-2">SulAmérica<br>Prestige</span>
+                  </div>
+                </div>
+              </li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> Consultas, exames e teleconsultas ilimitados</li>
+              <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
+                  class="w-4 h-4 text-mint-600"></i> Exames com desconto e suporte prioritário</li>
+              <li class="flex items-start gap-2 text-xs text-gray-400"><i data-lucide="info"
+                  class="w-4 h-4 mt-0.5"></i><span>Linhas de referência premium; confirme a rede antes da
+                  contratação.</span></li>
+            </ul><button onclick="showPage('page-register')"
+              class="w-full border border-brand-600 text-brand-600 font-semibold py-3 rounded-xl hover:bg-brand-50 transition">Escolher
+              Plano</button>
+          </div>
+        </div>
+        <p class="text-xs text-gray-400 text-center max-w-3xl mx-auto mt-8">As operadoras e linhas citadas são
+          referências reais de mercado, não significam parceria ou credenciamento da Saúde Plus. Cobertura, rede,
+          carência, preço e elegibilidade devem ser confirmados diretamente com a operadora ou corretora autorizada.</p>
+      </div>
+    </section><!-- About -->
+    <section id="about-section" class="py-20 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6">Sobre Saúde Plus</h2>
+            <p class="text-gray-600 text-lg mb-4">O Saúde Plus não é um convênio médico. Você paga pelo acesso à
+              plataforma e encontra atendimentos e convênios credenciados em um só lugar.</p>
+            <p class="text-gray-600 text-lg mb-4">Desenvolvida como projeto acadêmico (PIM - Projeto Integrado
+              Multidisciplinar), nossa missão é simplificar a jornada do paciente, tornando o agendamento de consultas,
+              exames e teleconsultas mais rápido, seguro e acessível.</p>
+            <p class="text-gray-600 text-lg mb-6">Contamos com uma rede de médicos especializados, tecnologia segura e
+              uma equipe dedicada a oferecer a melhor experiência em saúde digital.</p>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div class="bg-brand-50 rounded-xl p-4">
+                <p class="font-bold text-brand-600 text-2xl">500+</p>
+                <p class="text-sm text-gray-600">Médicos cadastrados</p>
+              </div>
+              <div class="bg-mint-50 rounded-xl p-4">
+                <p class="font-bold text-mint-600 text-2xl">10k+</p>
+                <p class="text-sm text-gray-600">Pacientes ativos</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gradient-to-br from-brand-500/20 to-mint-500/20 rounded-3xl p-12 border border-brand-100">
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center flex-shrink-0"><i
+                    data-lucide="target" class="w-6 h-6 text-brand-600"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Nossa Missão</p>
+                  <p class="text-sm text-gray-600 mt-1">Tornar a saúde acessível e conveniente para todos através da
+                    tecnologia digital.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-mint-100 flex items-center justify-center flex-shrink-0"><i
+                    data-lucide="eye" class="w-6 h-6 text-mint-600"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Nossa Visão</p>
+                  <p class="text-sm text-gray-600 mt-1">Ser a plataforma líder em telemedicina, conectando pacientes e
+                    profissionais de saúde com excelência.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0"><i
+                    data-lucide="heart" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Nossos Valores</p>
+                  <p class="text-sm text-gray-600 mt-1">Confiança, segurança, inovação e compromisso com o bem-estar de
+                    cada paciente.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="faq-section" class="py-20 bg-gray-50">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Perguntas Frequentes</h2>
+          <p class="text-gray-500 text-lg">Encontre respostas rápidas sobre o Saúde Plus.</p>
+        </div>
+        <div class="space-y-3">
+          <details class="bg-white rounded-2xl border border-gray-100 p-5">
+            <summary class="cursor-pointer font-semibold text-gray-800">O Saúde Plus é um convênio médico?</summary>
+            <p class="text-sm text-gray-500 mt-3">Não. O Saúde Plus é uma plataforma digital que conecta você a
+              serviços, profissionais e referências de operadoras. A cobertura deve ser confirmada conforme a região e o
+              contrato.</p>
+          </details>
+          <details class="bg-white rounded-2xl border border-gray-100 p-5">
+            <summary class="cursor-pointer font-semibold text-gray-800">Qual a diferença entre os planos?</summary>
+            <p class="text-sm text-gray-500 mt-3">Os planos variam na abrangência da rede, quantidade de teleconsultas,
+              linhas de referência e suporte. Consulte os detalhes dentro de cada card de plano.</p>
+          </details>
+          <details class="bg-white rounded-2xl border border-gray-100 p-5">
+            <summary class="cursor-pointer font-semibold text-gray-800">Como agendo uma consulta?</summary>
+            <p class="text-sm text-gray-500 mt-3">Depois de entrar, abra a aba Consultas, escolha a especialidade, o
+              médico, a data e o horário disponíveis.</p>
+          </details>
+          <details class="bg-white rounded-2xl border border-gray-100 p-5">
+            <summary class="cursor-pointer font-semibold text-gray-800">Posso usar a plataforma pelo celular?</summary>
+            <p class="text-sm text-gray-500 mt-3">Sim. A interface é responsiva e adapta consultas, teleconsultas,
+              planos e demais recursos a diferentes tamanhos de tela.</p>
+          </details>
+        </div>
+      </div>
+    </section><!-- Footer -->
+    <footer class="bg-gray-900 py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center">
+        <p class="text-gray-400 text-sm">© 2026 Saúde Plus. Projeto Acadêmico PIM. Todos os direitos reservados.</p>
+      </div>
+    </footer>
+  </div><!-- ============ LOGIN PAGE ============ -->
+  <div id="page-login" class="page">
+    <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-brand-50">
+      <div class="w-full max-w-md fade-in">
+        <div class="text-center mb-8">
+          <div class="w-14 h-14 mx-auto rounded-xl btn-primary flex items-center justify-center mb-4">
+            <i data-lucide="heart-pulse" class="w-7 h-7 text-white"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-gray-900">Bem-vindo de volta</h2>
+          <p class="text-gray-500 mt-1">Acesse sua conta Saúde Plus</p>
+        </div>
+        <form id="login-form" class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
+          <div>
+            <label for="login-email" class="block text-sm font-semibold text-gray-700 mb-1.5">E-mail</label> <input
+              type="email" id="login-email" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="seu@email.com">
+          </div>
+          <div>
+            <label for="login-password" class="block text-sm font-semibold text-gray-700 mb-1.5">Senha</label> <input
+              type="password" id="login-password" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="••••••••">
+          </div>
+          <button type="submit"
+            class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Entrar</button>
+          <button type="button" onclick="showPasswordRecovery()"
+            class="w-full text-sm text-brand-600 font-semibold hover:underline">Esqueci minha senha</button>
+          <div class="relative flex items-center py-1">
+            <div class="flex-grow border-t border-gray-100"></div><span class="px-3 text-xs text-gray-400">ou</span>
+            <div class="flex-grow border-t border-gray-100"></div>
+          </div>
+          <button type="button" onclick="enterDemoMode()"
+            class="w-full border border-amber-400 text-amber-700 bg-amber-50 hover:bg-amber-100 font-semibold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2"><i
+              data-lucide="flask-conical" class="w-4 h-4"></i> Entrar temporariamente (demonstração)</button>
+          <p class="text-xs text-center text-gray-400">Usa dados fictícios e não precisa do banco de dados.</p>
+          <p class="text-center text-sm text-gray-500">Não tem conta? <button type="button"
+              onclick="showPage('page-register')"
+              class="text-brand-600 font-semibold hover:underline">Cadastre-se</button></p>
+        </form><button onclick="showPage('page-landing')"
+          class="mt-4 w-full text-center text-sm text-gray-400 hover:text-gray-600 transition">← Voltar ao
+          início</button>
+        <form id="password-recovery-form"
+          class="hidden bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Recuperar senha</h3>
+            <p class="text-sm text-gray-500 mt-1">Informe os dados cadastrados para receber o código de recuperação.</p>
+          </div>
+          <div id="recovery-email-field"><label for="recovery-email"
+              class="block text-sm font-semibold text-gray-700 mb-1.5">E-mail</label><input type="email"
+              id="recovery-email" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="seu@email.com"></div>
+          <div id="recovery-phone-field" class="hidden"><label for="recovery-phone"
+              class="block text-sm font-semibold text-gray-700 mb-1.5">Número de telefone</label><input type="tel"
+              id="recovery-phone" maxlength="15" inputmode="numeric"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="(11) 99999-9999"></div>
+          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Receber
+            código</button>
+          <button type="button" id="recovery-other-method" onclick="toggleRecoveryPhone()"
+            class="w-full text-sm text-brand-600 font-semibold hover:underline">Tentar de outra maneira</button>
+          <button type="button" onclick="hidePasswordRecovery()"
+            class="w-full text-sm text-gray-500 hover:text-gray-700">Voltar ao login</button>
+        </form>
+        <form id="password-token-form"
+          class="hidden bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Validar código</h3>
+            <p class="text-sm text-gray-500 mt-1">Digite o código recebido para continuar.</p>
+          </div>
+          <div><label for="recovery-token" class="block text-sm font-semibold text-gray-700 mb-1.5">Código de
+              recuperação</label><input id="recovery-token" required inputmode="numeric" maxlength="6"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Digite o código"></div>
+          <div><label for="recovery-password" class="block text-sm font-semibold text-gray-700 mb-1.5">Nova
+              senha</label><input type="password" id="recovery-password" required minlength="6"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Mínimo 6 caracteres"></div>
+          <div><label for="recovery-password-confirm" class="block text-sm font-semibold text-gray-700 mb-1.5">Confirmar
+              nova senha</label><input type="password" id="recovery-password-confirm" required minlength="6"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Repita a nova senha"></div>
+          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Atualizar
+            senha</button>
+          <button type="button" onclick="showPasswordRecovery()"
+            class="w-full text-sm text-gray-500 hover:text-gray-700">Alterar e-mail ou telefone</button>
+        </form>
+      </div>
+    </div>
+  </div><!-- ============ REGISTER PAGE ============ -->
+  <div id="page-register" class="page">
+    <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-mint-50">
+      <div class="w-full max-w-md fade-in">
+        <div class="text-center mb-8">
+          <div class="w-14 h-14 mx-auto rounded-xl btn-primary flex items-center justify-center mb-4">
+            <i data-lucide="user-plus" class="w-7 h-7 text-white"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-gray-900">Criar conta</h2>
+          <p class="text-gray-500 mt-1">Comece a cuidar da sua saúde hoje</p>
+        </div>
+        <form id="register-form" class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
+          <div>
+            <label for="reg-name" class="block text-sm font-semibold text-gray-700 mb-1.5">Nome completo</label> <input
+              type="text" id="reg-name" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Seu nome completo">
+          </div>
+          <div>
+            <label for="reg-email" class="block text-sm font-semibold text-gray-700 mb-1.5">E-mail</label> <input
+              type="email" id="reg-email" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="seu@email.com">
+          </div>
+          <div>
+            <label for="reg-phone" class="block text-sm font-semibold text-gray-700 mb-1.5">Telefone</label> <input
+              type="tel" id="reg-phone" required maxlength="15" inputmode="numeric"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="(11) 99999-9999">
+          </div>
+          <div>
+            <label for="reg-address" class="block text-sm font-semibold text-gray-700 mb-1.5">Endereço</label> <input
+              type="text" id="reg-address" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Rua, número e cidade">
+          </div>
+          <div>
+            <label for="reg-password" class="block text-sm font-semibold text-gray-700 mb-1.5">Senha</label> <input
+              type="password" id="reg-password" required minlength="6"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Mínimo 6 caracteres">
+          </div>
+          <div>
+            <label for="reg-password-confirm" class="block text-sm font-semibold text-gray-700 mb-1.5">Confirmar
+              senha</label> <input type="password" id="reg-password-confirm" required minlength="6"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+              placeholder="Repita sua senha">
+          </div>
+          <label class="flex items-start gap-2 text-sm text-gray-600"><input type="checkbox" id="reg-plan-later" checked
+              class="w-4 h-4 mt-0.5 accent-brand-600"> <span>Quero escolher e comprar meu plano depois do
+              cadastro.</span></label>
+          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Criar
+            Conta</button>
+          <p class="text-center text-sm text-gray-500">Já tem conta? <button type="button"
+              onclick="showPage('page-login')" class="text-brand-600 font-semibold hover:underline">Entrar</button></p>
+        </form><button onclick="showPage('page-landing')"
+          class="mt-4 w-full text-center text-sm text-gray-400 hover:text-gray-600 transition">← Voltar ao
+          início</button>
+      </div>
+    </div>
+  </div><!-- ============ DASHBOARD ============ -->
+  <div id="page-dashboard" class="page">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 bg-white border-r border-gray-100 p-6">
+        <div class="flex items-center gap-2 mb-10">
+          <div class="w-9 h-9 rounded-lg btn-primary flex items-center justify-center">
+            <i data-lucide="heart-pulse" class="w-5 h-5 text-white"></i>
+          </div><span class="text-lg font-bold text-gray-900">Saúde Plus</span>
+        </div>
+        <nav class="flex-1 space-y-1">
+          <button onclick="showDashSection('dash-plans')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="layers" class="w-5 h-5"></i> Planos </button>
+          <button onclick="showDashSection('dash-home')"
+            class="dash-nav-btn active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Início </button> <button
+            onclick="showDashSection('dash-appointments')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="calendar" class="w-5 h-5"></i> Consultas </button> <button
+            onclick="showDashSection('dash-exams')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="file-text" class="w-5 h-5"></i> Exames </button> <button
+            onclick="showDashSection('dash-teleconsulta')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="video" class="w-5 h-5"></i> Teleconsulta </button> <button
+            onclick="showDashSection('dash-network')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="map-pin" class="w-5 h-5"></i> Rede próxima </button> <button
+            onclick="showDashSection('dash-contacts')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="messages-square" class="w-5 h-5"></i> Contatos </button> <button
+            onclick="showDashSection('dash-family')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="users" class="w-5 h-5"></i> Dependentes </button> <button
+            onclick="showDashSection('dash-profile')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="user-cog" class="w-5 h-5"></i> Editar perfil </button> <button
+            onclick="showDashSection('dash-card')"
+            class="dash-nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition">
+            <i data-lucide="credit-card" class="w-5 h-5"></i> Carteirinha </button>
+        </nav><button onclick="logout()"
+          class="mt-auto w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition">
+          <i data-lucide="log-out" class="w-5 h-5"></i> Sair </button>
+      </aside><!-- Main Content -->
+      <div class="flex-1 overflow-auto">
+        <!-- Top Bar -->
+        <header
+          class="sticky top-0 z-40 glass border-b border-gray-100 px-4 sm:px-8 py-4 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-gray-900" id="dash-greeting">Olá!</h1>
+            <p class="text-sm text-gray-500">Bem-vindo ao seu painel de saúde</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <!-- Mobile menu -->
+            <div class="lg:hidden relative">
+              <button onclick="toggleMobileMenu()" class="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"> <i
+                  data-lucide="menu" class="w-5 h-5 text-gray-700"></i> </button>
+              <div id="mobile-menu"
+                class="hidden absolute right-0 top-12 bg-white rounded-2xl shadow-xl border border-gray-100 p-3 w-64 z-50 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                <button onclick="showDashSection('dash-plans');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="layers" class="w-4 h-4"></i> Planos </button>
+                <button onclick="showDashSection('dash-home');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Início </button> <button
+                  onclick="showDashSection('dash-appointments');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="calendar" class="w-4 h-4"></i> Consultas </button> <button
+                  onclick="showDashSection('dash-exams');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="file-text" class="w-4 h-4"></i> Exames </button> <button
+                  onclick="showDashSection('dash-teleconsulta');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="video" class="w-4 h-4"></i> Teleconsulta </button> <button
+                  onclick="showDashSection('dash-network');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="map-pin" class="w-4 h-4"></i> Rede próxima </button> <button
+                  onclick="showDashSection('dash-contacts');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="messages-square" class="w-4 h-4"></i> Contatos </button> <button
+                  onclick="showDashSection('dash-family');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="users" class="w-4 h-4"></i> Dependentes </button> <button
+                  onclick="showDashSection('dash-profile');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="user" class="w-4 h-4"></i> Meu Perfil </button> <button
+                  onclick="showDashSection('dash-card');toggleMobileMenu()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-brand-50">
+                  <i data-lucide="credit-card" class="w-4 h-4"></i> Carteirinha </button>
+                <hr class="my-2"><button onclick="logout()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50">
+                  <i data-lucide="log-out" class="w-4 h-4"></i> Sair </button>
+              </div>
+            </div>
+            <button type="button" onclick="showDashSection('dash-profile')"
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-brand-500 to-mint-500 flex items-center justify-center hover:shadow-lg transition"
+              aria-label="Meu Perfil" title="Meu Perfil">
+              <i data-lucide="user" id="user-avatar-icon" class="w-5 h-5 text-white"></i>
+              <span class="sr-only" id="user-avatar">U</span>
+            </button>
+          </div>
+        </header>
+        <main class="p-4 sm:p-8">
+          <!-- DASH HOME -->
+          <section id="dash-home" class="dash-section active fade-in">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              <div class="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-brand-100 flex items-center justify-center"><i
+                      data-lucide="calendar-check" class="w-6 h-6 text-brand-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-900" id="stat-appointments">0</p>
+                    <p class="text-sm text-gray-500">Consultas agendadas</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-mint-100 flex items-center justify-center"><i
+                      data-lucide="file-text" class="w-6 h-6 text-mint-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-900" id="stat-exams">0</p>
+                    <p class="text-sm text-gray-500">Exames agendados</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center"><i
+                      data-lucide="video" class="w-6 h-6 text-purple-600"></i>
+                  </div>
+                  <div>
+                    <p class="text-2xl font-bold text-gray-900" id="stat-tele">0</p>
+                    <p class="text-sm text-gray-500">Teleconsultas</p>
+                  </div>
+                </div>
+              </div>
+            </div><!-- Quick actions -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              <button onclick="showDashSection('dash-appointments')"
+                class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center"><i data-lucide="plus"
+                    class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Agendar Consulta</p>
+                  <p class="text-sm text-gray-500">Escolha especialidade e médico</p>
+                </div>
+              </button> <button onclick="showDashSection('dash-exams')"
+                class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-mint-500 flex items-center justify-center"><i data-lucide="plus"
+                    class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Agendar Exame</p>
+                  <p class="text-sm text-gray-500">Escolha exame e horário</p>
+                </div>
+              </button>
+            </div><!-- Recent items -->
+            <div class="bg-white rounded-2xl border border-gray-100 p-6">
+              <h3 class="font-bold text-gray-900 mb-4">Próximos compromissos</h3>
+              <div id="recent-items" class="space-y-3">
+                <p class="text-gray-400 text-sm text-center py-8">Nenhum compromisso agendado ainda. Use os botões acima
+                  para começar!</p>
+              </div>
+            </div>
+          </section><!-- DASH APPOINTMENTS -->
+          <section id="dash-appointments" class="dash-section fade-in">
+            <div class="flex flex-col items-center text-center gap-4 mb-6">
+              <h2 class="text-2xl font-bold text-gray-900">Consultas</h2><button onclick="openAppointmentModal()"
+                class="btn-primary text-white font-semibold px-7 py-3.5 rounded-xl text-sm flex items-center gap-2"> <i
+                  data-lucide="plus" class="w-4 h-4"></i> Nova Consulta </button>
+            </div>
+            <div id="appointments-list" class="space-y-4">
+              <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                <i data-lucide="calendar" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                <p class="text-gray-400">Nenhuma consulta agendada</p>
+                <p class="text-sm text-gray-300 mt-1">Clique em "Nova Consulta" para agendar</p>
+              </div>
+            </div>
+          </section><!-- DASH EXAMS -->
+          <section id="dash-exams" class="dash-section fade-in">
+            <div class="flex flex-col items-center text-center gap-4 mb-6">
+              <h2 class="text-2xl font-bold text-gray-900">Exames</h2><button onclick="openExamModal()"
+                class="btn-primary text-white font-semibold px-7 py-3.5 rounded-xl text-sm flex items-center gap-2"> <i
+                  data-lucide="plus" class="w-4 h-4"></i> Novo Exame </button>
+            </div>
+            <div id="exams-list" class="space-y-4">
+              <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center">
+                <i data-lucide="file-text" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+                <p class="text-gray-400">Nenhum exame agendado</p>
+                <p class="text-sm text-gray-300 mt-1">Clique em "Novo Exame" para agendar</p>
+              </div>
+            </div>
+          </section><!-- DASH REDE PRÓXIMA -->
+          <section id="dash-network" class="dash-section fade-in">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900">Hospitais e convênios credenciados</h2>
+                <p class="text-sm text-gray-500 mt-1">Encontre atendimento perto do endereço cadastrado.</p>
+              </div><label class="flex items-center gap-2 text-sm font-semibold text-gray-700">Raio <select
+                  id="hospital-radius" onchange="renderHospitals()"
+                  class="input-style px-3 py-2 rounded-xl border border-gray-200 bg-white">
+                  <option value="5">5 km</option>
+                  <option value="10" selected>10 km</option>
+                  <option value="25">25 km</option>
+                  <option value="50">50 km</option>
+                </select></label>
+            </div>
+            <div id="hospital-list" class="grid md:grid-cols-2 gap-4"></div>
+          </section><!-- DASH CONTATOS -->
+          <section id="dash-contacts" class="dash-section fade-in">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900">Meus contatos médicos</h2>
+                <p class="text-sm text-gray-500 mt-1">Médicos com quem você já teve consulta e que estão disponíveis.
+                </p>
+              </div>
+            </div>
+            <div id="contacts-list" class="grid md:grid-cols-2 gap-4"></div>
+          </section>
+          <!-- DASH FAMÍLIA -->
+          <section id="dash-family" class="dash-section fade-in">
+            <div class="flex flex-col items-center text-center gap-4 mb-6">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900">Pediatria, adultos e geriatria</h2>
+                <p class="text-sm text-gray-500 mt-1">Organize quem depende do seu cuidado.</p>
+                <p id="dependent-limit-info" class="text-xs text-brand-600 mt-2"></p>
+              </div><button onclick="addDependent()"
+                class="btn-primary text-white font-semibold px-7 py-3.5 rounded-xl text-sm flex items-center gap-2"><i
+                  data-lucide="plus" class="w-4 h-4"></i> Adicionar pessoa</button>
+            </div>
+            <div id="dependents-list" class="grid md:grid-cols-2 gap-4"></div>
+          </section>
+          <!-- DASH PLANOS -->
+          <section id="dash-plans" class="dash-section fade-in">
+            <div class="mb-8">
+              <h2 class="text-2xl font-bold text-gray-900">Escolha seu plano</h2>
+              <p class="text-sm text-gray-500 mt-1">Troque de plano quando quiser e veja qual combina melhor com você.
+              </p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+              <button type="button" data-plan-card="Básico" onclick="openPayment('Básico')"
+                class="plan-option bg-white rounded-2xl border border-gray-100 p-8 text-left card-hover">
+                <div class="p-5">
+                  <p class="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">Plano</p>
+                  <h3 class="text-xl font-bold text-gray-900">Básico</h3>
+                  <p class="text-sm text-gray-500 mt-2">Rede regional e cuidados essenciais.</p>
+                  <p class="text-xs font-semibold text-gray-700 mt-4 mb-2">Convênios de referência</p>
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=hapvida.com.br&amp;sz=128" alt="Logo Hapvida"
+                          class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Hapvida<br>Nosso Plano</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=notredame.com.br&amp;sz=128"
+                          alt="Logo NotreDame" class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">NotreDame<br>Smart</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=unimed.coop.br&amp;sz=128" alt="Logo Unimed"
+                          class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Unimed<br>Regional</span>
+                    </div>
+                  </div>
+                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 49<span
+                      class="text-sm text-gray-500">/mês</span></p><span
+                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                </div>
+              </button>
+              <button type="button" data-plan-card="Premium" onclick="openPayment('Premium')"
+                class="plan-option bg-white rounded-2xl border-2 border-brand-600 p-8 text-left card-hover relative">
+                <div class="p-5">
+                  <p class="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">Plano</p>
+                  <h3 class="text-xl font-bold text-gray-900">Premium</h3>
+                  <p class="text-sm text-gray-500 mt-2">Rede ampliada e mais especialistas.</p>
+                  <p class="text-xs font-semibold text-gray-700 mt-4 mb-2">Convênios de referência</p>
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=amil.com.br&amp;sz=128" alt="Logo Amil"
+                          class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Amil<br>S380</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=unimed.coop.br&amp;sz=128" alt="Logo Unimed"
+                          class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Unimed<br>Nacional</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=sulamerica.com.br&amp;sz=128"
+                          alt="Logo SulAmérica" class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">SulAmérica<br>Exato</span>
+                    </div>
+                  </div>
+                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 99<span
+                      class="text-sm text-gray-500">/mês</span></p><span
+                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                </div>
+              </button>
+              <button type="button" data-plan-card="Premium Saúde Plus" onclick="openPayment('Premium Saúde Plus')"
+                class="plan-option bg-white rounded-2xl border border-gray-100 p-8 text-left card-hover">
+                <div class="p-5">
+                  <p class="text-xs font-bold uppercase tracking-wide text-gray-400 mb-1">Plano</p>
+                  <h3 class="text-xl font-bold text-gray-900">Premium Saúde Plus</h3>
+                  <p class="text-sm text-gray-500 mt-2">Rede nacional e hospitais de referência.</p>
+                  <p class="text-xs font-semibold text-gray-700 mt-4 mb-2">Convênios de referência</p>
+                  <div class="grid grid-cols-3 gap-2">
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=amil.com.br&amp;sz=128" alt="Logo Amil"
+                          class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Amil<br>One</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=bradescoseguros.com.br&amp;sz=128"
+                          alt="Logo Bradesco Saúde" class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">Bradesco Saúde<br>Nacional Plus</span>
+                    </div>
+                    <div class="text-center">
+                      <div class="h-9 flex items-center justify-center rounded-lg bg-gray-50 p-1"><img
+                          src="https://www.google.com/s2/favicons?domain=sulamerica.com.br&amp;sz=128"
+                          alt="Logo SulAmérica" class="max-h-6 max-w-full object-contain" loading="lazy"></div><span
+                        class="block text-[10px] text-gray-500 mt-1">SulAmérica<br>Prestige</span>
+                    </div>
+                  </div>
+                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 199<span
+                      class="text-sm text-gray-500">/mês</span></p><span
+                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                </div>
+              </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-6">Os valores exibidos são do acesso à plataforma Saúde Plus. Operadoras,
+              rede, cobertura e condições variam conforme região e contrato.</p>
+          </section>
+          <!-- DASH PERFIL -->
+          <section id="dash-profile" class="dash-section fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Meu Perfil</h2>
+            <form id="profile-form" class="bg-white rounded-2xl border border-gray-100 p-6 max-w-xl space-y-4">
+              <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-name">Nome
+                  completo</label><input id="profile-name" required
+                  class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+              <div><label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  for="profile-phone">Telefone</label><input id="profile-phone" required maxlength="15"
+                  inputmode="numeric"
+                  class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+              <div><label class="block text-sm font-semibold text-gray-700 mb-1.5"
+                  for="profile-address">Endereço</label><input id="profile-address" required
+                  class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+              <button class="btn-primary text-white font-semibold px-5 py-3 rounded-xl text-sm">Salvar
+                alterações</button>
+            </form>
+          </section>
+          <!-- DASH CHAT -->
+          <section id="dash-chat" class="dash-section fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Conversa com médico</h2>
+            <div class="bg-white rounded-2xl border border-gray-100 max-w-2xl overflow-hidden">
+              <div id="chat-messages" class="p-6 space-y-3 min-h-48">
+                <p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Olá! Esta é uma conversa segura com a equipe
+                  credenciada. Como posso ajudar?</p>
+              </div>
+              <form id="chat-form" class="border-t border-gray-100 p-4 flex gap-3"><input id="chat-input" required
+                  class="input-style flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+                  placeholder="Escreva sua mensagem"><button class="btn-primary text-white px-4 rounded-xl"
+                  aria-label="Enviar mensagem"><i data-lucide="send" class="w-5 h-5"></i></button></form>
+            </div>
+          </section>
+          <!-- DASH TELECONSULTA -->
+          <section id="dash-teleconsulta" class="dash-section fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Teleconsulta</h2>
+            <div class="bg-white rounded-2xl border border-gray-100 p-8">
+              <div class="text-center mb-8">
+                <div
+                  class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-brand-500 to-mint-500 flex items-center justify-center mb-4">
+                  <i data-lucide="video" class="w-10 h-10 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Consulta por Vídeo</h3>
+                <p class="text-gray-500">Inicie uma teleconsulta simulada para demonstração</p>
+              </div>
+              <div class="max-w-md mx-auto space-y-4">
+                <div>
+                  <label for="tele-specialty"
+                    class="block text-sm font-semibold text-gray-700 mb-1.5">Especialidade</label> <select
+                    id="tele-specialty"
+                    class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+                    <option value="">Selecione</option>
+                    <option>Clínico Geral</option>
+                    <option>Cardiologia</option>
+                    <option>Neurologia</option>
+                    <option>Pediatria</option>
+                    <option>Psiquiatria</option>
+                  </select>
+                </div>
+                <p class="text-xs text-gray-500 text-center mt-2">Em caso de urgência você pode optar pela opção de teleconsulta para conversar diretamente com um médico.</p>
+                <button onclick="startTeleconsulta()"
+                  class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-4">
+                  <i data-lucide="video" class="w-5 h-5"></i> Iniciar Teleconsulta </button>
+              </div>
+
+              <div class="mt-8">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-lg font-bold text-gray-900">Teleconsultas agendadas</h3>
+                </div>
+                <div id="teleconsultas-agendadas" class="space-y-3"></div>
+              </div>
+            </div>
+          </section><!-- DASH CARD -->
+          <section id="dash-card" class="dash-section fade-in">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Carteirinha Digital</h2>
+            <div class="max-w-md mx-auto">
+              <div
+                class="relative bg-gradient-to-br from-brand-600 via-brand-700 to-mint-600 rounded-3xl p-8 text-white shadow-2xl overflow-hidden">
+                <div class="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2">
+                </div>
+                <div
+                  class="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2">
+                </div>
+                <div class="relative z-10">
+                  <div class="flex items-center justify-between mb-8">
+                    <div class="flex items-center gap-2">
+                      <i data-lucide="heart-pulse" class="w-6 h-6"></i> <span class="font-bold text-lg">Saúde
+                        Plus</span>
+                    </div><span class="text-xs bg-white/20 px-3 py-1 rounded-full font-medium" id="card-plan">-</span>
+                  </div>
+                  <p class="text-2xl font-bold mb-1" id="card-name">-</p>
+                  <p class="text-white/70 text-sm mb-6" id="card-email">-</p>
+                  <div class="flex justify-between items-end">
+                    <div>
+                      <p class="text-xs text-white/50 mb-1">ID do Beneficiário</p>
+                      <p class="font-mono font-bold text-lg" id="card-id">-</p>
+                    </div>
+                    <div class="text-right">
+                      <p class="text-xs text-white/50 mb-1">Válido até</p>
+                      <p class="font-bold" id="card-valid">-</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div><!-- ============ TELECONSULTA SIMULADA ============ -->
+  <div id="page-teleconsulta" class="page">
+    <div class="teleconsulta-shell h-full flex flex-col bg-gray-900">
+      <div class="flex items-center justify-between px-6 py-4 bg-gray-800">
+        <div class="flex items-center gap-3">
+          <div class="pulse-dot"></div><span class="text-white font-semibold text-sm">Teleconsulta em andamento</span>
+        </div><button onclick="endTeleconsulta()"
+          class="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2 rounded-xl text-sm transition flex items-center gap-2">
+          <i data-lucide="phone-off" class="w-4 h-4"></i> Encerrar </button>
+      </div>
+      <div class="teleconsulta-stage flex-1 flex items-center justify-center relative">
+        <div class="text-center">
+          <div
+            class="w-32 h-32 mx-auto rounded-full bg-gray-700 flex items-center justify-center mb-6 border-4 border-mint-500">
+            <i data-lucide="user" class="w-16 h-16 text-gray-400"></i>
+          </div>
+          <p class="text-white font-bold text-xl mb-1" id="tele-doctor-name">Dr(a). Médico</p>
+          <p class="text-gray-400 text-sm" id="tele-doctor-spec">Especialidade</p>
+          <div class="flex items-center justify-center gap-2 mt-4">
+            <div class="pulse-dot"></div><span class="text-mint-400 text-sm font-medium">Conectado</span>
+          </div>
+          <p class="text-gray-500 text-xs mt-6" id="tele-timer">00:00</p>
+        </div><!-- Self view -->
+        <div
+          class="tele-self-view absolute bottom-6 right-6 w-32 h-24 bg-gray-700 rounded-xl border-2 border-gray-600 flex items-center justify-center">
+          <i data-lucide="user" class="w-8 h-8 text-gray-500"></i>
+        </div>
+      </div>
+      <div class="teleconsulta-controls flex items-center justify-center gap-4 py-6 bg-gray-800">
+        <button class="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition"
+          id="btn-mic"> <i data-lucide="mic" class="w-5 h-5 text-white"></i> </button> <button
+          class="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center transition"
+          id="btn-cam"> <i data-lucide="camera" class="w-5 h-5 text-white"></i> </button> <button
+          onclick="endTeleconsulta()"
+          class="w-14 h-14 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition"> <i
+            data-lucide="phone-off" class="w-6 h-6 text-white"></i> </button>
+      </div>
+    </div>
+  </div><!-- ============ MODALS ============ --> <!-- Appointment Modal -->
+  <div id="modal-appointment" class="modal-overlay hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90%] overflow-auto fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Agendar Consulta</h3><button
+          onclick="closeModal('modal-appointment')" class="p-2 rounded-xl hover:bg-gray-100 transition"><i
+            data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+      </div>
+      <form id="appointment-form" class="space-y-4">
+        <div>
+          <label for="apt-specialty" class="block text-sm font-semibold text-gray-700 mb-1.5">Especialidade</label>
+          <select id="apt-specialty" required
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+            <option value="">Selecione a especialidade</option>
+            <option value="Clínico Geral">Clínico Geral</option>
+            <option value="Cardiologia">Cardiologia</option>
+            <option value="Dermatologia">Dermatologia</option>
+            <option value="Ortopedia">Ortopedia</option>
+            <option value="Pediatria">Pediatria</option>
+            <option value="Ginecologia">Ginecologia</option>
+            <option value="Neurologia">Neurologia</option>
+            <option value="Psiquiatria">Psiquiatria</option>
+            <option value="Endocrinologia">Endocrinologia</option>
+            <option value="Gastroenterologia">Gastroenterologia</option>
+            <option value="Oftalmologia">Oftalmologia</option>
+            <option value="Otorrinolaringologia">Otorrinolaringologia</option>
+            <option value="Urologia">Urologia</option>
+            <option value="Reumatologia">Reumatologia</option>
+            <option value="Pneumologia">Pneumologia</option>
+            <option value="Infectologia">Infectologia</option>
+            <option value="Hematologia">Hematologia</option>
+            <option value="Oncologia">Oncologia</option>
+            <option value="Nefrologia">Nefrologia</option>
+            <option value="Cirurgia Geral">Cirurgia Geral</option>
+            <option value="Cirurgia Plástica">Cirurgia Plástica</option>
+            <option value="Obstetrícia">Obstetrícia</option>
+            <option value="Medicina do Trabalho">Medicina do Trabalho</option>
+            <option value="Alergologia">Alergologia</option>
+            <option value="Nutrição">Nutrição</option>
+            <option value="Psicologia">Psicologia</option>
+            <option value="Fisioterapia">Fisioterapia</option>
+            <option value="Acupuntura">Acupuntura</option>
+            <option value="Homeopatia">Homeopatia</option>
+            <option value="Geriatria">Geriatria</option>
+            <option value="Medicina de Família">Medicina de Família</option>
+            <option value="Ortopedia Pediátrica">Ortopedia Pediátrica</option>
+            <option value="Mastologia">Mastologia</option>
+            <option value="Neuropediatria">Neuropediatria</option>
+            <option value="Psiquiatria Infantil">Psiquiatria Infantil</option>
+            <option value="Dermatologia Pediátrica">Dermatologia Pediátrica</option>
+            <option value="Medicina Estética">Medicina Estética</option>
+          </select>
+        </div>
+        <div>
+          <label for="apt-doctor" class="block text-sm font-semibold text-gray-700 mb-1.5">Médico</label> <select
+            id="apt-doctor" required
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white"
+            disabled>
+            <option value="">Selecione a especialidade primeiro</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="apt-date" class="block text-sm font-semibold text-gray-700 mb-1.5">Data</label> <input
+              type="date" id="apt-date" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none">
+          </div>
+          <div>
+            <label for="apt-time" class="block text-sm font-semibold text-gray-700 mb-1.5">Horário</label> <select
+              id="apt-time" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+              <option value="">Horário</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="apt-type" class="block text-sm font-semibold text-gray-700 mb-1.5">Tipo</label> <select
+            id="apt-type" required
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+            <option value="">Selecione</option>
+            <option value="Presencial">Presencial</option>
+            <option value="Teleconsulta">Teleconsulta</option>
+          </select>
+        </div><button type="submit"
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm mt-2">Confirmar
+          Agendamento</button>
+      </form>
+    </div>
+  </div><!-- Exam Modal -->
+  <div id="modal-exam" class="modal-overlay hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90%] overflow-auto fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold text-gray-900">Agendar Exame</h3><button onclick="closeModal('modal-exam')"
+          class="p-2 rounded-xl hover:bg-gray-100 transition"><i data-lucide="x"
+            class="w-5 h-5 text-gray-500"></i></button>
+      </div>
+      <form id="exam-form" class="space-y-4">
+        <div>
+          <label for="exam-type" class="block text-sm font-semibold text-gray-700 mb-1.5">Tipo de Exame</label> <select
+            id="exam-type" required
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+            <option value="">Selecione o exame</option>
+            <option>Hemograma Completo</option>
+            <option>Glicemia</option>
+            <option>Colesterol Total</option>
+            <option>Eletrocardiograma</option>
+            <option>Raio-X</option>
+            <option>Ultrassonografia</option>
+            <option>Ressonância Magnética</option>
+            <option>Tomografia</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="exam-date" class="block text-sm font-semibold text-gray-700 mb-1.5">Data</label> <input
+              type="date" id="exam-date" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none">
+          </div>
+          <div>
+            <label for="exam-time" class="block text-sm font-semibold text-gray-700 mb-1.5">Horário</label> <select
+              id="exam-time" required
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none bg-white">
+              <option value="">Horário</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="exam-notes" class="block text-sm font-semibold text-gray-700 mb-1.5">Observações</label> <textarea
+            id="exam-notes" rows="3" readonly aria-readonly="true"
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none resize-none bg-gray-50 text-gray-600"
+            placeholder="Selecione um exame."></textarea>
+          <p id="exam-notes-status" class="text-xs text-gray-400 mt-1">A orientação é fornecida pelo sistema conforme o
+            exame selecionado.</p>
+        </div><button type="submit"
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm mt-2">Confirmar Exame</button>
+      </form>
+    </div>
+  </div><!-- Dependent Modal -->
+  <div id="modal-dependent" class="modal-overlay hidden">
+    <div class="dependent-modal-content bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 fade-in">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900">Adicionar dependente</h3>
+          <p class="text-sm text-gray-500 mt-1">Escolha o tipo e preencha os dados.</p>
+        </div>
+        <button type="button" onclick="closeModal('modal-dependent')"
+          class="p-2 rounded-xl hover:bg-gray-100 transition" aria-label="Fechar"><i data-lucide="x"
+            class="w-5 h-5 text-gray-500"></i></button>
+      </div>
+      <form id="dependent-form" class="dependent-form space-y-5">
+        <input type="hidden" id="dependent-type" value="Pediatria">
+        <div>
+          <p class="block text-sm font-semibold text-gray-700 mb-2">Tipo de atendimento</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <button type="button" data-type="Pediatria" onclick="selectDependentType('Pediatria')"
+              class="dependent-type-btn border-2 rounded-xl p-4 text-left transition" aria-pressed="true"><i
+                data-lucide="baby" class="w-5 h-5 mb-2"></i><span
+                class="block font-semibold text-sm">Pediatria</span><span class="block text-xs text-gray-500 mt-1">Para
+                crianças</span></button>
+            <button type="button" data-type="Adulto" onclick="selectDependentType('Adulto')"
+              class="dependent-type-btn border-2 border-gray-200 rounded-xl p-4 text-left transition"
+              aria-pressed="false"><i data-lucide="user" class="w-5 h-5 mb-2"></i><span
+                class="block font-semibold text-sm">Adulto</span><span class="block text-xs text-gray-500 mt-1">Para
+                pessoas adultas</span></button>
+            <button type="button" data-type="Geriatria" onclick="selectDependentType('Geriatria')"
+              class="dependent-type-btn border-2 border-gray-200 rounded-xl p-4 text-left transition"
+              aria-pressed="false"><i data-lucide="heart-pulse" class="w-5 h-5 mb-2"></i><span
+                class="block font-semibold text-sm">Geriatria</span><span class="block text-xs text-gray-500 mt-1">Para
+                pessoas idosas</span></button>
+          </div>
+        </div>
+        <div><label id="dependent-name-label" for="dependent-name"
+            class="block text-sm font-semibold text-gray-700 mb-1.5">Nome da criança</label><input id="dependent-name"
+            required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+            placeholder="Digite o nome"></div>
+        <div><label for="dependent-cpf" class="block text-sm font-semibold text-gray-700 mb-1.5">CPF do
+            dependente</label><input id="dependent-cpf" required maxlength="14" inputmode="numeric"
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+            placeholder="000.000.000-00"></div>
+        <input type="hidden" id="dependent-gender" value="Masculino">
+        <div id="dependent-gender-field" class="hidden">
+          <p class="block text-sm font-semibold text-gray-700 mb-2">Sexo</p>
+          <div class="grid grid-cols-2 gap-3"><button type="button" data-gender="Masculino"
+              onclick="selectDependentGender('Masculino')"
+              class="dependent-gender-btn border-2 border-brand-500 bg-brand-50 text-brand-700 rounded-xl py-3 font-semibold text-sm transition flex items-center justify-center gap-2"
+              aria-pressed="true"><i data-lucide="user" class="w-4 h-4"></i> Homem</button><button type="button"
+              data-gender="Feminino" onclick="selectDependentGender('Feminino')"
+              class="dependent-gender-btn border-2 border-gray-200 rounded-xl py-3 font-semibold text-sm transition flex items-center justify-center gap-2"
+              aria-pressed="false"><i data-lucide="user" class="w-4 h-4"></i> Mulher</button></div>
+        </div>
+        <input type="hidden" id="dependent-legal" value="Sim">
+        <div id="dependent-legal-field">
+          <p class="block text-sm font-semibold text-gray-700 mb-2">Você é responsável legal?</p>
+          <div class="grid grid-cols-2 gap-3"><button type="button" data-value="Sim"
+              onclick="selectLegalResponsibility('Sim')"
+              class="dependent-legal-btn border-2 border-brand-500 bg-brand-50 text-brand-700 rounded-xl py-3 font-semibold text-sm transition"
+              aria-pressed="true">Sim</button><button type="button" data-value="Não"
+              onclick="selectLegalResponsibility('Não')"
+              class="dependent-legal-btn border-2 border-gray-200 rounded-xl py-3 font-semibold text-sm transition"
+              aria-pressed="false">Não</button></div>
+        </div>
+        <div id="dependent-relation-field" class="hidden"><label for="dependent-relation"
+            class="block text-sm font-semibold text-gray-700 mb-1.5">Qual é o seu vínculo?</label><input
+            id="dependent-relation"
+            class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+            placeholder="Ex: Filho, Filha"></div>
+        <label id="dependent-companion-field" class="hidden flex items-center gap-3 text-sm text-gray-700"><input
+            type="checkbox" id="dependent-companion" class="w-4 h-4 accent-brand-600"> Essa pessoa tem
+          acompanhante</label>
+        <div class="flex gap-3 pt-1"><button type="button" onclick="closeModal('modal-dependent')"
+            class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-sm text-gray-700 hover:bg-gray-50 transition">Cancelar</button><button
+            type="submit" class="flex-1 btn-primary text-white font-semibold py-3 rounded-xl text-sm">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div><!-- Confirm Delete Modal -->
+  <div id="modal-payment" class="modal-overlay hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-8 max-h-[90%] overflow-auto fade-in">
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900">Assinar plano</h3>
+          <p class="text-sm text-gray-500 mt-1">Plano escolhido: <strong id="payment-plan-name"
+              class="text-brand-600">-</strong></p>
+        </div><button type="button" onclick="closeModal('modal-payment')"
+          class="p-2 rounded-xl hover:bg-gray-100 transition" aria-label="Fechar"><i data-lucide="x"
+            class="w-5 h-5 text-gray-500"></i></button>
+      </div>
+      <div id="payment-methods" class="grid grid-cols-3 gap-2 mb-6"><button type="button" data-payment-method="credit"
+          onclick="selectPaymentMethod('credit')"
+          class="payment-method border-2 border-brand-500 bg-brand-50 text-brand-700 rounded-xl p-3 text-sm font-semibold"><i
+            data-lucide="credit-card" class="w-5 h-5 mx-auto mb-1"></i>Crédito</button><button type="button"
+          data-payment-method="debit" onclick="selectPaymentMethod('debit')"
+          class="payment-method border-2 border-gray-200 text-gray-600 rounded-xl p-3 text-sm font-semibold"><i
+            data-lucide="wallet-cards" class="w-5 h-5 mx-auto mb-1"></i>Débito</button><button type="button"
+          data-payment-method="pix" onclick="selectPaymentMethod('pix')"
+          class="payment-method border-2 border-gray-200 text-gray-600 rounded-xl p-3 text-sm font-semibold"><i
+            data-lucide="qr-code" class="w-5 h-5 mx-auto mb-1"></i>Pix</button></div>
+      <div id="plan-management-actions" class="hidden space-y-3 mb-6">
+        <button type="button" id="btn-change-payment-method"
+          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Trocar forma de pagamento</button>
+        <button type="button" id="btn-cancel-plan"
+          class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Cancelar plano</button>
+      </div>
+      <form id="payment-form" class="space-y-4">
+        <div id="card-payment-fields" class="space-y-4">
+          <div><label for="card-number" class="block text-sm font-semibold text-gray-700 mb-1.5">Número do
+              cartão</label>
+            <div class="relative"><input id="card-number" inputmode="numeric" autocomplete="cc-number" maxlength="19"
+                class="input-style w-full px-4 py-3 pr-28 rounded-xl border border-gray-200 text-sm outline-none"
+                placeholder="0000 0000 0000 0000"><span id="card-brand"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400">Bandeira</span></div>
+          </div>
+          <div><label for="card-holder" class="block text-sm font-semibold text-gray-700 mb-1.5">Nome impresso no
+              cartão</label><input id="card-holder" autocomplete="cc-name"
+              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none uppercase"
+              placeholder="NOME COMPLETO"></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><label for="card-expiry" class="block text-sm font-semibold text-gray-700 mb-1.5">Validade
+                (MM/AA)</label><input id="card-expiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5"
+                class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+                placeholder="MM/AA"></div>
+            <div><label for="card-cvv" class="block text-sm font-semibold text-gray-700 mb-1.5">Código de
+                segurança</label><input id="card-cvv" type="password" inputmode="numeric" autocomplete="cc-csc"
+                maxlength="4"
+                class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
+                placeholder="CVV"></div>
+          </div>
+        </div>
+        <div id="pix-payment-fields" class="hidden rounded-xl bg-mint-50 border border-mint-100 p-5 text-center"><i
+            data-lucide="qr-code" class="w-10 h-10 text-mint-600 mx-auto mb-2"></i>
+          <p class="font-bold text-gray-900">Pagamento via Pix</p>
+          <p class="text-sm text-gray-500 mt-1">Um código Pix seria gerado para concluir a assinatura.</p>
+        </div>
+        <p class="text-xs text-gray-400">Demonstração acadêmica: nenhum pagamento é processado. Apenas os últimos quatro
+          dígitos e a bandeira ficam salvos para identificação.</p><button type="submit"
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Confirmar assinatura</button>
+      </form>
+    </div>
+  </div>
+  <div id="modal-confirm" class="modal-overlay hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 text-center fade-in">
+      <div class="w-16 h-16 mx-auto rounded-full bg-red-100 flex items-center justify-center mb-4">
+        <i data-lucide="trash-2" class="w-8 h-8 text-red-500"></i>
+      </div>
+      <h3 id="confirm-title" class="text-lg font-bold text-gray-900 mb-2">Cancelar agendamento?</h3>
+      <p id="confirm-description" class="text-sm text-gray-500 mb-6">Esta ação não pode ser desfeita.</p>
+      <div class="flex gap-3">
+        <button onclick="closeModal('modal-confirm')"
+          class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-sm text-gray-700 hover:bg-gray-50 transition">Voltar</button>
+        <button id="confirm-delete-btn"
+          class="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition"><span
+            id="confirm-action">Confirmar</span></button>
+      </div>
+    </div>
+  </div>
+  <div id="assistant-widget" class="hidden">
+    <button type="button" class="assistant-fab" onclick="toggleAssistant()" aria-label="Abrir chatbot"
+      title="Abrir chatbot"><i data-lucide="bot" class="w-6 h-6"></i></button>
+    <div id="assistant-panel" class="assistant-panel hidden" role="dialog" aria-label="Chatbot Saúde Plus">
+      <div class="flex items-center justify-between bg-gray-900 text-white px-5 py-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-mint-500 flex items-center justify-center"><i data-lucide="bot"
+              class="w-5 h-5"></i></div>
+          <div>
+            <p class="font-bold text-sm">Assistente Saúde Plus</p>
+            <p class="text-xs text-gray-300">Tire dúvidas sobre a plataforma</p>
+          </div>
+        </div><button type="button" onclick="toggleAssistant()" class="p-1 hover:bg-white/10 rounded-lg"
+          aria-label="Fechar chatbot"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="assistant-messages" class="p-4 space-y-3 max-h-64 overflow-auto">
+        <p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Olá! Como posso ajudar?</p>
+        <div class="assistant-suggestions" aria-label="Perguntas sugeridas"><button type="button"
+            class="assistant-suggestion"
+            data-assistant-question="Como funcionam as consultas?">Consultas</button><button type="button"
+            class="assistant-suggestion" data-assistant-question="Como agendar um exame?">Exames</button><button
+            type="button" class="assistant-suggestion"
+            data-assistant-question="Como funciona a teleconsulta?">Teleconsulta</button><button type="button"
+            class="assistant-suggestion" data-assistant-question="SUPORTE">Suporte</button><button type="button"
+            class="assistant-suggestion" data-assistant-question="Quais planos estão disponíveis?">Outras
+            opções</button></div>
+      </div>
+      <form id="assistant-form" class="border-t border-gray-100 p-3 flex gap-2"><input id="assistant-input" required
+          class="input-style flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none"
+          placeholder="Digite sua dúvida"><button class="btn-primary text-white px-3 rounded-xl"
+          aria-label="Enviar pergunta"><i data-lucide="send" class="w-4 h-4"></i></button></form>
+    </div>
+    <div id="support-interface" class="hidden border-t border-gray-100 bg-gray-50">
+      <div class="px-4 py-3 flex items-center justify-between">
+        <div>
+          <p class="font-bold text-sm text-gray-800">Atendimento humano</p>
+          <p class="text-xs text-gray-500">Equipe Saúde Plus</p>
+        </div><button type="button" onclick="closeSupportInterface()"
+          class="text-xs text-brand-600 font-semibold">Voltar ao assistente</button>
+      </div>
+      <div id="support-messages" class="px-4 pb-3 space-y-2 max-h-48 overflow-auto">
+        <p class="support-message">Olá! Este é o canal de suporte. Envie sua mensagem e ela ficará registrada nesta
+          sessão.</p>
+      </div>
+      <form id="support-form" class="border-t border-gray-200 p-3 flex gap-2"><input id="support-input" required
+          class="input-style flex-1 px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none bg-white"
+          placeholder="Escreva para o suporte"><button class="btn-primary text-white px-3 rounded-xl"
+          aria-label="Enviar mensagem ao suporte"><i data-lucide="send" class="w-4 h-4"></i></button></form>
+    </div>
+  </div>
+  <script src="app.js"></script>
+  <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9fe5acf200cfdecb',t:'MTc3OTIyMDY5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+
+  <!-- ==================== Script Do VLibras ==================== -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
