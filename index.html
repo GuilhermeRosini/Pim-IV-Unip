@@ -210,7 +210,8 @@
               <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
                   class="w-4 h-4 text-mint-600"></i> Agendamento e carteirinha digital</li>
               <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
-                  class="w-4 h-4 text-mint-600"></i> Até 10 agendamentos mensais entre consultas, exames e teleconsultas</li>
+                  class="w-4 h-4 text-mint-600"></i> Até 10 agendamentos mensais entre consultas, exames e teleconsultas
+              </li>
               <li class="flex items-start gap-2 text-xs text-gray-400"><i data-lucide="info"
                   class="w-4 h-4 mt-0.5"></i><span>Exemplos de linhas; disponibilidade depende da cidade e do
                   contrato.</span></li>
@@ -255,7 +256,8 @@
                 </div>
               </li>
               <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
-                  class="w-4 h-4 text-mint-600"></i> Até 20 agendamentos mensais entre consultas, exames e teleconsultas</li>
+                  class="w-4 h-4 text-mint-600"></i> Até 20 agendamentos mensais entre consultas, exames e teleconsultas
+              </li>
               <li class="flex items-center gap-2 text-sm text-gray-600"><i data-lucide="check"
                   class="w-4 h-4 text-mint-600"></i> 4 teleconsultas pela plataforma/mês</li>
               <li class="flex items-start gap-2 text-xs text-gray-400"><i data-lucide="info"
@@ -697,7 +699,7 @@
                   </div>
                   <div>
                     <p class="text-2xl font-bold text-gray-900" id="stat-tele">0</p>
-                    <p class="text-sm text-gray-500">Teleconsultas</p>
+                    <p class="text-sm text-gray-500">Teleconsultas Agendadas</p>
                   </div>
                 </div>
               </div>
@@ -720,6 +722,16 @@
                 <div>
                   <p class="font-bold text-gray-900">Agendar Exame</p>
                   <p class="text-sm text-gray-500">Escolha exame e horário</p>
+                </div>
+              </button>
+               <button onclick="showDashSection('dash-appointments')"
+                class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center"><i data-lucide="plus"
+                    class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900">Agendar Teleconsulta</p>
+                  <p class="text-sm text-gray-500">Escolha especialidade e médico</p>
                 </div>
               </button>
             </div><!-- Recent items -->
@@ -926,7 +938,7 @@
           </section>
           <!-- DASH CHAT -->
           <section id="dash-chat" class="dash-section fade-in">
-            <h2 class="text-2xl font-bold text-gray-900 mb-6">Conversa com médico</h2>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Conversar com o médico</h2>
             <div class="bg-white rounded-2xl border border-gray-100 max-w-2xl overflow-hidden">
               <div id="chat-messages" class="p-6 space-y-3 min-h-48">
                 <p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Olá! Esta é uma conversa segura com a equipe
@@ -964,7 +976,8 @@
                     <option>Psiquiatria</option>
                   </select>
                 </div>
-                <p class="text-xs text-gray-500 text-center mt-2">Em caso de urgência você pode optar pela opção de teleconsulta para conversar diretamente com um médico.</p>
+                <p class="text-xs text-gray-500 text-center mt-2">Em caso de urgência você pode optar pela opção de
+                  teleconsulta para conversar diretamente com um médico.</p>
                 <button onclick="startTeleconsulta()"
                   class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-4">
                   <i data-lucide="video" class="w-5 h-5"></i> Iniciar Teleconsulta </button>
@@ -974,6 +987,9 @@
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-lg font-bold text-gray-900">Teleconsultas agendadas</h3>
                 </div>
+                <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+                  Tolerância de até 10 minutos para iniciar a chamada. Após esse prazo, a sessão será encerrada.
+                </p>
                 <div id="teleconsultas-agendadas" class="space-y-3"></div>
               </div>
             </div>
@@ -1291,9 +1307,11 @@
             data-lucide="qr-code" class="w-5 h-5 mx-auto mb-1"></i>Pix</button></div>
       <div id="plan-management-actions" class="hidden space-y-3 mb-6">
         <button type="button" id="btn-change-payment-method"
-          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Trocar forma de pagamento</button>
+          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Trocar
+          forma de pagamento</button>
         <button type="button" id="btn-cancel-plan"
-          class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Cancelar plano</button>
+          class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Cancelar
+          plano</button>
       </div>
       <form id="payment-form" class="space-y-4">
         <div id="card-payment-fields" class="space-y-4">
