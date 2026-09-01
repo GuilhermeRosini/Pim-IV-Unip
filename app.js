@@ -185,6 +185,7 @@ function selectPlan(plan, notify = true) {
     DataService.setCurrentUser(user);
     updatePlanCards(normalizedPlan);
     applyPlanLockState();
+    updateScheduleActionButtons();
     renderDependents();
     document.getElementById("card-plan").textContent = "Plano " + normalizedPlan;
     if (notify) showToast(`Plano ${normalizedPlan} selecionado`, "success");
@@ -223,6 +224,54 @@ function getMonthlyUsageCount(user = DataService.getCurrentUser()) {
     return appointments.length + exams.length;
 }
 
+function getPlanUsageState(user = DataService.getCurrentUser()) {
+    const plan = getSelectedPlan(user);
+    const limit = getPlanLimit(plan);
+    const usage = getMonthlyUsageCount(user);
+    const hasLimit = Number.isFinite(limit);
+
+    return {
+        plan,
+        limit,
+        usage,
+        reached: hasLimit && usage >= limit,
+        unlimited: !hasLimit,
+        canSchedule: !plan ? false : (!hasLimit || usage < limit),
+    };
+}
+
+function updateScheduleActionButtons() {
+    const user = DataService.getCurrentUser();
+    const state = getPlanUsageState(user);
+
+    document.querySelectorAll("[data-schedule-action]").forEach((button) => {
+        const action = button.dataset.scheduleAction;
+        const isDisabled = !user || !state.plan || state.reached;
+        button.disabled = isDisabled;
+        button.setAttribute("aria-disabled", String(isDisabled));
+        button.classList.toggle("opacity-40", isDisabled);
+        button.classList.toggle("pointer-events-none", isDisabled);
+        button.classList.toggle("grayscale", isDisabled);
+        button.classList.toggle("cursor-not-allowed", isDisabled);
+
+        if (action === "appointment" && !state.plan) {
+            button.title = "Selecione um plano antes de agendar consultas.";
+        } else if (action === "appointment" && state.reached) {
+            button.title = "Limite do plano atingido. Atualize seu plano para continuar.";
+        } else if (action === "exam" && !state.plan) {
+            button.title = "Selecione um plano antes de agendar exames.";
+        } else if (action === "exam" && state.reached) {
+            button.title = "Limite do plano atingido. Atualize seu plano para continuar.";
+        } else if (action === "teleconsulta" && !state.plan) {
+            button.title = "Selecione um plano antes de iniciar uma teleconsulta.";
+        } else if (action === "teleconsulta" && state.reached) {
+            button.title = "Limite do plano atingido. Atualize seu plano para continuar.";
+        } else {
+            button.title = "";
+        }
+    });
+}
+
 function getPlanUpgradeMessage(plan = getSelectedPlan()) {
     if (!plan) return "Selecione um plano antes de agendar.";
     if (plan === "Básico") return "Você atingiu o limite mensal do plano Básico. Atualize para Premium para continuar agendando mais consultas, exames e teleconsultas.";
@@ -250,6 +299,19 @@ function canScheduleWithCurrentPlan() {
     }
 
     return true;
+}
+
+function isPlanLimitReachedForAction(actionType = "appointment") {
+    const user = DataService.getCurrentUser();
+    const state = getPlanUsageState(user);
+    if (!user || !state.plan) return false;
+    if (state.unlimited) return false;
+    if (state.reached) {
+        showToast(getPlanUpgradeMessage(state.plan), "error");
+        showDashSection("dash-plans");
+        return true;
+    }
+    return false;
 }
 
 function renderPlanDependentLimits() {
@@ -759,6 +821,7 @@ function renderDashboard() {
     });
     updatePlanCards(planoPago);
     applyPlanLockState();
+    updateScheduleActionButtons();
     if (!planoPago) showDashSection("dash-plans");
 
     // Estatísticas + listas (filtradas pelo usuário logado)
@@ -1386,6 +1449,7 @@ function updateExamTimeOptions() {
 // ==================== 7. AGENDAMENTO DE CONSULTAS ====================
 function openAppointmentModal() {
     if (!requirePlanAccess("Consultas")) return;
+    if (isPlanLimitReachedForAction("appointment")) return;
     if (!canScheduleWithCurrentPlan()) return;
     const dateInput = document.getElementById("apt-date");
     if (!dateInput.value) dateInput.value = getLocalDateString();
@@ -1453,6 +1517,7 @@ document.getElementById("appointment-form").addEventListener("submit", function 
     updateAppointmentTimeOptions();
 
     renderDashboard();
+    updateScheduleActionButtons();
     showToast("Consulta agendada!", "success");
 });
 
@@ -1603,6 +1668,7 @@ function updateExamInstructions() {
 
 function openExamModal() {
     if (!requirePlanAccess("Exames")) return;
+    if (isPlanLimitReachedForAction("exam")) return;
     if (!canScheduleWithCurrentPlan()) return;
     const dateInput = document.getElementById("exam-date");
     if (!dateInput.value) dateInput.value = getLocalDateString();
@@ -1655,6 +1721,7 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
     this.reset();
 
     renderDashboard();
+    updateScheduleActionButtons();
     showToast("Exame agendado!", "success");
 });
 
@@ -1703,6 +1770,7 @@ let activeTeleconsultaId = null;
 
 function startTeleconsulta() {
     if (!requirePlanAccess("Teleconsulta")) return;
+    if (isPlanLimitReachedForAction("teleconsulta")) return;
     if (!canScheduleWithCurrentPlan()) return;
 
     const especialidade = document.getElementById("tele-specialty").value;
@@ -1734,6 +1802,7 @@ function startTeleconsulta() {
     showPage("page-teleconsulta");
 
     DataService.saveTelecount(DataService.getTelecount() + 1);
+    updateScheduleActionButtons();
 
     teleSeconds = 0;
     document.getElementById("tele-timer").textContent = "00:00";

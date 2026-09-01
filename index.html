@@ -705,7 +705,7 @@
               </div>
             </div><!-- Quick actions -->
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-              <button onclick="showDashSection('dash-appointments')"
+              <button type="button" data-schedule-action="appointment" onclick="if (!isPlanLimitReachedForAction('appointment')) showDashSection('dash-appointments')"
                 class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center"><i data-lucide="plus"
                     class="w-6 h-6 text-white"></i>
@@ -714,7 +714,7 @@
                   <p class="font-bold text-gray-900">Agendar Consulta</p>
                   <p class="text-sm text-gray-500">Escolha especialidade e médico</p>
                 </div>
-              </button> <button onclick="showDashSection('dash-exams')"
+              </button> <button type="button" data-schedule-action="exam" onclick="if (!isPlanLimitReachedForAction('exam')) showDashSection('dash-exams')"
                 class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-mint-500 flex items-center justify-center"><i data-lucide="plus"
                     class="w-6 h-6 text-white"></i>
@@ -724,7 +724,7 @@
                   <p class="text-sm text-gray-500">Escolha exame e horário</p>
                 </div>
               </button>
-              <button onclick="showDashSection('dash-teleconsulta')"
+              <button type="button" data-schedule-action="teleconsulta" onclick="if (!isPlanLimitReachedForAction('teleconsulta')) showDashSection('dash-teleconsulta')"
                 class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
                 <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center"><i data-lucide="plus"
                     class="w-6 h-6 text-white"></i>
@@ -745,7 +745,7 @@
           </section><!-- DASH APPOINTMENTS -->
           <section id="dash-appointments" class="dash-section fade-in">
             <div class="flex flex-col items-center text-center gap-4 mb-6">
-              <h2 class="text-2xl font-bold text-gray-900">Consultas</h2><button onclick="openAppointmentModal()"
+              <h2 class="text-2xl font-bold text-gray-900">Consultas</h2><button type="button" data-schedule-action="appointment" onclick="openAppointmentModal()"
                 class="btn-primary text-white font-semibold px-7 py-3.5 rounded-xl text-sm flex items-center gap-2"> <i
                   data-lucide="plus" class="w-4 h-4"></i> Nova Consulta </button>
             </div>
@@ -759,7 +759,7 @@
           </section><!-- DASH EXAMS -->
           <section id="dash-exams" class="dash-section fade-in">
             <div class="flex flex-col items-center text-center gap-4 mb-6">
-              <h2 class="text-2xl font-bold text-gray-900">Exames</h2><button onclick="openExamModal()"
+              <h2 class="text-2xl font-bold text-gray-900">Exames</h2><button type="button" data-schedule-action="exam" onclick="openExamModal()"
                 class="btn-primary text-white font-semibold px-7 py-3.5 rounded-xl text-sm flex items-center gap-2"> <i
                   data-lucide="plus" class="w-4 h-4"></i> Novo Exame </button>
             </div>
@@ -882,7 +882,7 @@
                     </div>
                   </div>
                   <div class="mt-4">
-                    <p class="text-3xl font-extrabold text-brand-700 leading-none">R$ 99,90</p>
+                    <p class="text-3xl font-extrabold text-brand-700 leading-none">R$ 149,90</p>
                     <p class="text-sm text-gray-500 mt-1">por mês</p>
                   </div>
                   <p class="text-xs text-gray-500 mt-3">Limite: até 20 Consultas/Exames/Teleconsultas por mês.</p>
@@ -989,7 +989,7 @@
                 </div>
                 <p class="text-xs text-gray-500 text-center mt-2">Em caso de urgência você pode optar pela opção de
                   teleconsulta para conversar diretamente com um médico.</p>
-                <button onclick="startTeleconsulta()"
+                <button type="button" data-schedule-action="teleconsulta" onclick="startTeleconsulta()"
                   class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 mt-4">
                   <i data-lucide="video" class="w-5 h-5"></i> Iniciar Teleconsulta </button>
               </div>
