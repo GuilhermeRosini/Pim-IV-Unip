@@ -96,6 +96,35 @@ body {
     padding: 0;
 }
 
+.plan-option-label {
+    transition: all 0.2s ease;
+}
+
+.plan-option-label--current {
+    background: linear-gradient(135deg, #1570f5, #0aab48);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 10px 22px rgba(21, 112, 245, 0.2);
+}
+
+.plan-active-action {
+    background: linear-gradient(135deg, #1570f5, #0aab48);
+    color: #fff;
+    border: none;
+    box-shadow: 0 10px 22px rgba(21, 112, 245, 0.2);
+}
+
+.plan-active-action:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.plan-option-label--select {
+    background: transparent;
+    color: #1570f5;
+    border: 1px solid #1570f5;
+}
+
 .dash-nav-btn.plan-locked {
     opacity: 0.45;
     filter: grayscale(0.2);

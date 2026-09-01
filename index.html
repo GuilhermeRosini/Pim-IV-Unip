@@ -724,14 +724,14 @@
                   <p class="text-sm text-gray-500">Escolha exame e horário</p>
                 </div>
               </button>
-               <button onclick="showDashSection('dash-appointments')"
+              <button onclick="showDashSection('dash-teleconsulta')"
                 class="bg-white rounded-2xl p-6 border border-gray-100 card-hover text-left flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-brand-500 flex items-center justify-center"><i data-lucide="plus"
+                <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center"><i data-lucide="plus"
                     class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
                   <p class="font-bold text-gray-900">Agendar Teleconsulta</p>
-                  <p class="text-sm text-gray-500">Escolha especialidade e médico</p>
+                  <p class="text-sm text-gray-500">Escolha a especialidade e agende</p>
                 </div>
               </button>
             </div><!-- Recent items -->
@@ -845,9 +845,13 @@
                         class="block text-[10px] text-gray-500 mt-1">Unimed<br>Regional</span>
                     </div>
                   </div>
-                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 49<span
-                      class="text-sm text-gray-500">/mês</span></p><span
-                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                  <div class="mt-4">
+                    <p class="text-3xl font-extrabold text-brand-700 leading-none">R$ 49,90</p>
+                    <p class="text-sm text-gray-500 mt-1">por mês</p>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">Limite: até 10 Consultas/Exames/Teleconsultas por mês.</p>
+                  <p class="text-xs text-gray-500 mt-1">Rede credenciada sob consulta de regras da operadora e coparticipação.</p><span
+                    class="plan-option-label plan-option-label--select block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
                 </div>
               </button>
               <button type="button" data-plan-card="Premium" onclick="openPayment('Premium')"
@@ -877,9 +881,13 @@
                         class="block text-[10px] text-gray-500 mt-1">SulAmérica<br>Exato</span>
                     </div>
                   </div>
-                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 99<span
-                      class="text-sm text-gray-500">/mês</span></p><span
-                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                  <div class="mt-4">
+                    <p class="text-3xl font-extrabold text-brand-700 leading-none">R$ 99,90</p>
+                    <p class="text-sm text-gray-500 mt-1">por mês</p>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">Limite: até 20 Consultas/Exames/Teleconsultas por mês.</p>
+                  <p class="text-xs text-gray-500 mt-1">Rede credenciada sob consulta de regras da operadora e coparticipação.</p><span
+                    class="plan-option-label plan-option-label--select block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
                 </div>
               </button>
               <button type="button" data-plan-card="Premium Saúde Plus" onclick="openPayment('Premium Saúde Plus')"
@@ -909,14 +917,18 @@
                         class="block text-[10px] text-gray-500 mt-1">SulAmérica<br>Prestige</span>
                     </div>
                   </div>
-                  <p class="text-lg font-extrabold text-brand-600 mt-4">R$ 199<span
-                      class="text-sm text-gray-500">/mês</span></p><span
-                    class="plan-option-label block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
+                  <div class="mt-4">
+                    <p class="text-3xl font-extrabold text-brand-700 leading-none">R$ 399,90</p>
+                    <p class="text-sm text-gray-500 mt-1">por mês</p>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-3">Uso ilimitado em consultas, exames e teleconsultas</p>
+                  <p class="text-xs text-gray-500 mt-1">Rede credenciada sob consulta de regras da operadora e coparticipação.</p><span
+                    class="plan-option-label plan-option-label--select block mt-4 text-center border border-brand-600 text-brand-600 font-semibold py-2.5 rounded-xl">Selecionar</span>
                 </div>
               </button>
             </div>
-            <p class="text-xs text-gray-400 mt-6">Os valores exibidos são do acesso à plataforma Saúde Plus. Operadoras,
-              rede, cobertura e condições variam conforme região e contrato.</p>
+            <p class="text-xs text-gray-400 mt-6">Os valores exibidos são do acesso à plataforma Saúde Plus. A rede, a cobertura e as condições dependem das operadoras credenciadas, regras do convênio e eventuais coparticipações aplicáveis.</p>
+            <p class="text-xs text-gray-500 mt-2 font-medium">Rede credenciada sob consulta de regras da operadora e coparticipação.</p>
           </section>
           <!-- DASH PERFIL -->
           <section id="dash-profile" class="dash-section fade-in">
@@ -939,12 +951,12 @@
           <!-- DASH CHAT -->
           <section id="dash-chat" class="dash-section fade-in">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Conversar com o médico</h2>
-            <div class="bg-white rounded-2xl border border-gray-100 max-w-2xl overflow-hidden">
-              <div id="chat-messages" class="p-6 space-y-3 min-h-48">
+            <div class="bg-white rounded-2xl border border-gray-100 max-w-2xl overflow-hidden" style="height: 70vh; display: flex; flex-direction: column;">
+              <div id="chat-messages" class="p-6 space-y-3 flex-1 overflow-y-auto min-h-0">
                 <p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Olá! Esta é uma conversa segura com a equipe
                   credenciada. Como posso ajudar?</p>
               </div>
-              <form id="chat-form" class="border-t border-gray-100 p-4 flex gap-3"><input id="chat-input" required
+              <form id="chat-form" class="border-t border-gray-100 p-4 flex gap-3 mt-auto" style="flex-shrink: 0;"><input id="chat-input" required
                   class="input-style flex-1 px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
                   placeholder="Escreva sua mensagem"><button class="btn-primary text-white px-4 rounded-xl"
                   aria-label="Enviar mensagem"><i data-lucide="send" class="w-5 h-5"></i></button></form>
@@ -960,7 +972,6 @@
                   <i data-lucide="video" class="w-10 h-10 text-white"></i>
                 </div>
                 <h3 class="text-xl font-bold text-gray-900 mb-2">Consulta por Vídeo</h3>
-                <p class="text-gray-500">Inicie uma teleconsulta simulada para demonstração</p>
               </div>
               <div class="max-w-md mx-auto space-y-4">
                 <div>
@@ -1307,7 +1318,7 @@
             data-lucide="qr-code" class="w-5 h-5 mx-auto mb-1"></i>Pix</button></div>
       <div id="plan-management-actions" class="hidden space-y-3 mb-6">
         <button type="button" id="btn-change-payment-method"
-          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Trocar
+          class="plan-active-action w-full font-semibold py-3.5 rounded-xl text-sm transition">Trocar
           forma de pagamento</button>
         <button type="button" id="btn-cancel-plan"
           class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3.5 rounded-xl text-sm transition">Cancelar

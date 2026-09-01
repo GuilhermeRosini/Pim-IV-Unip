@@ -271,8 +271,19 @@ function updatePlanCards(activePlan = "") {
         const isSelected = card.dataset.planCard === activePlan;
         card.classList.toggle("border-brand-600", isSelected);
         card.classList.toggle("border-gray-100", !isSelected);
+        card.classList.toggle("bg-brand-50/50", isSelected);
         const label = card.querySelector(".plan-option-label");
-        if (label) label.textContent = isSelected ? "Plano atual" : "Selecionar";
+        if (!label) return;
+
+        label.textContent = isSelected ? "Plano atual" : "Selecionar";
+        label.classList.toggle("plan-option-label--current", isSelected);
+        label.classList.toggle("plan-option-label--select", !isSelected);
+        label.classList.remove("border-brand-600", "text-brand-600", "bg-brand-600", "text-white");
+        if (isSelected) {
+            label.classList.add("bg-brand-600", "text-white", "border-brand-600");
+        } else {
+            label.classList.add("border-brand-600", "text-brand-600");
+        }
     });
 }
 
@@ -303,9 +314,24 @@ function renderConvenioDetails() {
     });
 
     const benefits = {
-        "Básico": ["Até 10 agendamentos por mês", "2 consultas pela plataforma/mês", "Rede regional e atendimento essencial"],
-        "Premium": ["Até 20 agendamentos por mês", "4 teleconsultas pela plataforma/mês", "Rede ampliada e mais especialistas"],
-        "Premium Saúde Plus": ["Consultas, exames e teleconsultas ilimitados", "Exames com desconto e suporte prioritário", "Rede nacional e hospitais de referência"],
+        "Básico": [
+            "Até 10 agendamentos por mês",
+            "2 consultas pela plataforma/mês",
+            "Teleconsultas e exames com regras da operadora",
+            "Rede regional e atendimento essencial",
+        ],
+        "Premium": [
+            "Até 20 agendamentos por mês",
+            "4 teleconsultas pela plataforma/mês",
+            "Consultas e exames com atendimento ampliado",
+            "Rede ampliada e mais especialistas",
+        ],
+        "Premium Saúde Plus": [
+            "Consultas, exames e teleconsultas ilimitados",
+            "Acesso prioritário e descontos em exames",
+            "Rede nacional e hospitais de referência",
+            "Cobertura conforme regras da operadora e coparticipação",
+        ],
     };
     document.querySelectorAll("[data-plan-card]").forEach((card) => {
         if (card.querySelector(".plan-benefits")) return;
@@ -1449,6 +1475,7 @@ document.getElementById("chat-form").addEventListener("submit", function (e) {
     if (!text) return;
     messages.insertAdjacentHTML("beforeend", `<p class="bg-gray-100 text-gray-700 rounded-xl p-3 text-sm ml-8">${text}</p><p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Mensagem recebida. O médico responderá assim que estiver disponível.</p>`);
     input.value = "";
+    messages.scrollTop = messages.scrollHeight;
 });
 
 function escapeHtml(value) {
