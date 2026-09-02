@@ -73,6 +73,19 @@ const DataService = {
         localStorage.setItem("sp_exams", JSON.stringify(data));
     },
 
+    getConversationHistory(doctorName) {
+        const user = this.getCurrentUser();
+        if (!user || !doctorName) return [];
+        const key = `sp_chat_${user.id}_${String(doctorName).toLowerCase().replace(/[^a-z0-9]+/g, "_")}`;
+        return JSON.parse(localStorage.getItem(key) || "[]");
+    },
+    saveConversationHistory(doctorName, messages) {
+        const user = this.getCurrentUser();
+        if (!user || !doctorName) return;
+        const key = `sp_chat_${user.id}_${String(doctorName).toLowerCase().replace(/[^a-z0-9]+/g, "_")}`;
+        localStorage.setItem(key, JSON.stringify(messages));
+    },
+
     // Contador de teleconsultas é salvo por usuário (sp_telecount_<id>)
     getTelecount() {
         const user = this.getCurrentUser();
@@ -93,6 +106,135 @@ const DataService = {
         if (user) localStorage.setItem(`sp_${key}_${user.id}`, JSON.stringify(data));
     },
 };
+
+const networksDB = [
+    { name: "Rede Saúde Central", address: "Av. Paulista, 1500 - Bela Vista, SP", distance: 2.4, specialties: ["Clínico Geral", "Cardiologia", "Pediatria"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 07:00 - 19:00" },
+    { name: "Clinica Nova Vida", address: "Rua Augusta, 320 - Consolação, SP", distance: 4.1, specialties: ["Dermatologia", "Ginecologia", "Psiquiatria"], types: ["Presencial"], hours: "Seg-Sab: 08:00 - 18:00" },
+    { name: "Hospital Horizonte", address: "Rua da Consolação, 760 - Cerqueira César, SP", distance: 6.5, specialties: ["Neurologia", "Ortopedia", "Cardiologia"], types: ["Presencial", "Exames"], hours: "Seg-Sex: 06:00 - 21:00" },
+    { name: "Centro Médico União", address: "Alameda Santos, 1200 - Jardim Paulista, SP", distance: 8.2, specialties: ["Nutrição", "Psicologia", "Fisioterapia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 08:00 - 20:00" },
+    { name: "Laboratório Diagnóstico Plus", address: "Rua Oscar Freire, 500 - Pinheiros, SP", distance: 11.7, specialties: ["Exames laboratoriais", "Ultrassonografia", "Ressonância"], types: ["Exames"], hours: "Seg-Sex: 07:00 - 19:00" },
+    { name: "Rede Ativa Saúde", address: "Avenida Faria Lima, 2800 - Itaim Bibi, SP", distance: 14.9, specialties: ["Gastroenterologia", "Oftalmologia", "Pneumologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 08:00 - 18:00" },
+];
+
+function normalizeDoctorName(name) {
+    return String(name || "").replace(/^Dr\.?\s*/i, "").replace(/^Dra\.?\s*/i, "");
+}
+
+function normalizeCpf(value) {
+    return String(value || "").replace(/\D/g, "").slice(0, 11);
+}
+
+function formatCpf(value) {
+    const digits = normalizeCpf(value);
+    if (!digits) return "";
+    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+function isValidCpf(value) {
+    const digits = normalizeCpf(value);
+    if (digits.length !== 11 || /^\d{11}$/.test(digits) === false) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i += 1) sum += Number(digits.charAt(i)) * (10 - i);
+    let digit1 = 11 - (sum % 11);
+    if (digit1 >= 10) digit1 = 0;
+    if (Number(digits.charAt(9)) !== digit1) return false;
+    sum = 0;
+    for (let i = 0; i < 10; i += 1) sum += Number(digits.charAt(i)) * (11 - i);
+    let digit2 = 11 - (sum % 11);
+    if (digit2 >= 10) digit2 = 0;
+    if (Number(digits.charAt(10)) !== digit2) return false;
+    return true;
+}
+
+function getBeneficiaryOptions() {
+    const user = DataService.getCurrentUser();
+    if (!user) return [];
+    const dependents = DataService.getUserData("dependents");
+    const options = [{ id: user.id, label: `${user.nome} (Titular)`, type: "titular" }];
+    dependents.forEach((person) => {
+        options.push({ id: person.id || `${person.name}-${person.cpf}`, label: `${person.name} (${person.type})`, type: "dependente" });
+    });
+    return options;
+}
+
+function renderBeneficiarySelection(selectId, mode = "consult") {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const options = getBeneficiaryOptions();
+    if (!options.length) {
+        select.innerHTML = '<option value="">Cadastre primeiro um titular ou dependente</option>';
+        select.disabled = true;
+        return;
+    }
+    select.innerHTML = `<option value="">Selecione ${mode === "exam" ? "quem fará o exame" : "para quem é a consulta"}</option>${options.map((option) => `<option value="${option.id}">${option.label}</option>`).join("")}`;
+    select.disabled = false;
+}
+
+function getSelectedBeneficiaryInfo(beneficiaryId) {
+    const user = DataService.getCurrentUser();
+    if (!beneficiaryId) return null;
+    if (user && String(user.id) === String(beneficiaryId)) {
+        return { id: user.id, name: user.nome, type: "titular", label: user.nome };
+    }
+    const dependents = DataService.getUserData("dependents") || [];
+    const dep = dependents.find((person) => String(person.id || `${person.name}-${person.cpf}`) === String(beneficiaryId));
+    return dep ? { id: dep.id || `${dep.name}-${dep.cpf}`, name: dep.name, type: "dependente", label: dep.name } : null;
+}
+
+function getNearbyNetworks() {
+    const user = DataService.getCurrentUser();
+    const address = (user?.endereco || "").trim().toLowerCase();
+    const addressHash = [...address].reduce((hash, character) => ((hash * 31) + character.charCodeAt(0)) >>> 0, 7);
+    return [...networksDB]
+        .map((network, index) => ({
+            ...network,
+            distance: Number((network.distance * (0.75 + ((addressHash + index * 53) % 51) / 100)).toFixed(1)),
+        }))
+        .sort((a, b) => a.distance - b.distance);
+}
+
+function buildNetworkOptions(selectedNetworkName = "") {
+    const networks = getNearbyNetworks();
+    return `<option value="">Selecione uma rede próxima</option>${networks.map((network) => `<option value="${network.name}" ${selectedNetworkName === network.name ? "selected" : ""}>${network.name} • ${network.distance} km</option>`).join("")}`;
+}
+
+function getCurrentUserDependents() {
+    return DataService.getUserData("dependents") || [];
+}
+
+function populateBeneficiaryFields() {
+    renderBeneficiarySelection("apt-beneficiary");
+    renderBeneficiarySelection("exam-beneficiary", "exam");
+    renderBeneficiarySelection("tele-beneficiary");
+    const aptNetwork = document.getElementById("apt-network");
+    if (aptNetwork) aptNetwork.innerHTML = buildNetworkOptions();
+    const examNetwork = document.getElementById("exam-network");
+    if (examNetwork) examNetwork.innerHTML = buildNetworkOptions();
+    const appointmentType = document.getElementById("apt-type");
+    if (appointmentType) {
+        const shouldShowNetwork = appointmentType.value === "Presencial";
+        const container = document.getElementById("apt-network-container");
+        container?.classList.toggle("hidden", !shouldShowNetwork);
+        if (aptNetwork) aptNetwork.required = shouldShowNetwork;
+    }
+}
+
+function selectNetworkForCurrentAction(networkName) {
+    const networkValue = networkName || "";
+    const aptNetwork = document.getElementById("apt-network");
+    const examNetwork = document.getElementById("exam-network");
+    const aptContainer = document.getElementById("apt-network-container");
+    if (aptNetwork) {
+        aptNetwork.innerHTML = buildNetworkOptions(networkValue);
+        aptNetwork.value = networkValue;
+    }
+    if (examNetwork) {
+        examNetwork.innerHTML = buildNetworkOptions(networkValue);
+        examNetwork.value = networkValue;
+    }
+    if (aptContainer) aptContainer.classList.toggle("hidden", !networkValue || document.getElementById("apt-type")?.value !== "Presencial");
+    if (networkValue) showToast(`Rede ${networkName} selecionada.`, "success");
+}
 
 
 // ==================== 3. BASE DE MÉDICOS (MOCK) ====================
@@ -165,6 +307,8 @@ function showDashSection(sectionId) {
     const secao = document.getElementById(sectionId);
     secao.style.display = "block";
     secao.classList.add("active");
+    const showAssistant = Boolean(DataService.getCurrentUser()) && !["dash-contacts", "dash-chat"].includes(sectionId);
+    setAssistantVisibility(showAssistant);
 
     document.querySelectorAll(".dash-nav-btn").forEach((button) => {
         const isActive = button.getAttribute("onclick")?.includes(`'${sectionId}'`);
@@ -627,14 +771,31 @@ function requirePlanAccess(actionLabel = "esta área") {
 document.getElementById("register-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
+    const cpf = document.getElementById("reg-cpf").value.trim();
+    const dataNascimento = document.getElementById("reg-birthdate").value;
     const usuario = {
         nome: document.getElementById("reg-name").value.trim(),
         email: document.getElementById("reg-email").value.trim(),
         telefone: document.getElementById("reg-phone").value.trim(),
         endereco: document.getElementById("reg-address").value.trim(),
+        cpf,
+        data_nascimento: dataNascimento,
         senha: document.getElementById("reg-password").value,
     };
     const confirmacaoSenha = document.getElementById("reg-password-confirm").value;
+    if (!usuario.nome || !usuario.email || !usuario.telefone || !usuario.endereco || !cpf || !dataNascimento) {
+        showToast("Preencha todos os campos obrigatórios.", "error");
+        return;
+    }
+    if (!isValidCpf(cpf)) {
+        showToast("Informe um CPF válido.", "error");
+        return;
+    }
+    const birthDate = new Date(dataNascimento + "T00:00:00");
+    if (Number.isNaN(birthDate.getTime()) || birthDate > new Date()) {
+        showToast("Informe uma data de nascimento válida.", "error");
+        return;
+    }
     if (usuario.senha.length < 6) {
         showToast("A senha deve ter pelo menos 6 caracteres", "error");
         return;
@@ -798,6 +959,8 @@ function renderDashboard() {
         showPage("page-landing");
         return;
     }
+
+    populateBeneficiaryFields();
 
     // Saudação e avatar
     document.getElementById("dash-greeting").textContent = `Olá, ${user.nome.split(" ")[0]}!`;
@@ -980,16 +1143,25 @@ function renderHospitals() {
     const container = document.getElementById("hospital-list");
     if (!container) return;
     const radius = Number(document.getElementById("hospital-radius").value);
-    const user = DataService.getCurrentUser();
-    const address = (user?.endereco || user?.address || "").trim().toLowerCase();
-    const addressHash = [...address].reduce((hash, character) => ((hash * 31) + character.charCodeAt(0)) >>> 0, 7);
-    const available = hospitalsDB.map((hospital, index) => ({
-        ...hospital,
-        distance: Number((hospital.distance * (0.75 + ((addressHash + index * 53) % 51) / 100)).toFixed(1)),
-    })).filter((hospital) => hospital.distance <= radius);
-    container.innerHTML = available.length ? available.map((hospital) => `
-        <article class="bg-white rounded-2xl border border-gray-100 p-5 card-hover flex items-start justify-between gap-4">
-            <div class="flex gap-3"><div class="w-11 h-11 rounded-xl bg-brand-100 flex items-center justify-center" aria-hidden="true"><svg class="w-8 h-8 text-brand-600" viewBox="0 0 64 64" fill="currentColor"><path d="M4 26h16v30H4zM44 26h16v30H44zM20 20h24v36H20z"></path><path fill="white" d="M8 31h4v5H8zM14 31h4v5h-4zM8 40h4v5H8zM14 40h4v5h-4zM8 49h4v5H8zM14 49h4v5h-4zM24 26h5v5h-5zM35 26h5v5h-5zM24 35h5v5h-5zM35 35h5v5h-5zM24 44h5v5h-5zM35 44h5v5h-5zM27 49h10v7H27zM48 31h4v5h-4zM54 31h4v5h-4zM48 40h4v5h-4zM54 40h4v5h-4zM48 49h4v5h-4zM54 49h4v5h-4z"></path><circle cx="32" cy="11" r="9" fill="white"></circle><circle cx="32" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"></circle><path d="M29 6h6v3h3v5h-3v3h-6v-3h-3V9h3z"></path></svg></div><div><p class="font-bold text-gray-900">${hospital.name}</p><p class="text-sm text-gray-500">${hospital.type}</p><p class="text-xs text-gray-400 mt-1">Credenciado: ${hospital.plan}</p></div></div><span class="text-sm font-bold text-brand-600 whitespace-nowrap">${hospital.distance} km</span>
+    const available = getNearbyNetworks().filter((network) => network.distance <= radius);
+    container.innerHTML = available.length ? available.map((network) => `
+        <article class="bg-white rounded-2xl border border-gray-100 p-5 card-hover flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex gap-3 min-w-0">
+                    <div class="w-11 h-11 rounded-xl bg-brand-100 flex items-center justify-center" aria-hidden="true"><i data-lucide="map-pin" class="w-5 h-5 text-brand-600"></i></div>
+                    <div class="min-w-0">
+                        <p class="font-bold text-gray-900 truncate">${network.name}</p>
+                        <p class="text-sm text-gray-500">${network.address}</p>
+                        <p class="text-xs text-gray-400 mt-1">${network.types.join(" • ")}</p>
+                    </div>
+                </div>
+                <span class="text-sm font-bold text-brand-600 whitespace-nowrap">${network.distance} km</span>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs text-gray-600">
+                <span class="bg-brand-50 text-brand-700 px-2 py-1 rounded-full">${network.specialties.slice(0, 2).join(" • ")}</span>
+                <span class="bg-mint-50 text-mint-700 px-2 py-1 rounded-full">${network.hours}</span>
+            </div>
+            <button type="button" onclick="selectNetworkForCurrentAction('${network.name}')" class="btn-primary text-white font-semibold px-3 py-2.5 rounded-xl text-sm">Selecionar rede</button>
         </article>`).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Nenhum hospital encontrado neste raio.</p></div>`;
     lucide.createIcons();
 }
@@ -1019,7 +1191,8 @@ function renderDependents() {
         const iconColor = isChild ? "text-brand-600" : isAdult ? "text-mint-600" : "text-orange-600";
         const iconBackground = isChild ? "bg-brand-100" : isAdult ? "bg-mint-100" : "bg-orange-100";
         const targetId = person.id || "";
-        return `<article class="dependent-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4"><div class="dependent-card-info flex min-w-0 items-center gap-4"><div class="w-12 h-12 rounded-full ${iconBackground} flex-shrink-0 flex items-center justify-center"><i data-lucide="${icon}" class="w-6 h-6 ${iconColor}"></i></div><div class="min-w-0"><p class="font-bold text-gray-900 truncate">${person.name}</p><p class="text-sm text-gray-500 truncate">${person.type} • ${person.relation}</p>${!isChild ? `<p class="text-xs text-gray-500 mt-1">Acompanhante: ${person.companion ? "Sim" : "Não"}</p>` : ""}</div></div><button type="button" onclick="confirmDelete('dependent', '${targetId}', ${index})" class="dependent-delete-button flex-shrink-0 w-10 h-10 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 transition flex items-center justify-center" aria-label="Excluir ${person.name}" title="Excluir dependente"><i data-lucide="trash-2" class="w-5 h-5"></i></button></article>`;
+        const legalText = person.legalResponsible === "Não" ? `Responsável: ${person.responsibleName || "Não informado"}` : "Responsável legal: Sim";
+        return `<article class="dependent-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4"><div class="dependent-card-info flex min-w-0 items-center gap-4"><div class="w-12 h-12 rounded-full ${iconBackground} flex-shrink-0 flex items-center justify-center"><i data-lucide="${icon}" class="w-6 h-6 ${iconColor}"></i></div><div class="min-w-0"><p class="font-bold text-gray-900 truncate">${person.name}</p><p class="text-sm text-gray-500 truncate">${person.type} • ${person.relation}</p>${!isChild ? `<p class="text-xs text-gray-500 mt-1">Acompanhante: ${person.companion ? "Sim" : "Não"}</p>` : ""}<p class="text-xs text-gray-500 mt-1">${legalText}</p></div></div><button type="button" onclick="confirmDelete('dependent', '${targetId}', ${index})" class="dependent-delete-button flex-shrink-0 w-10 h-10 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 transition flex items-center justify-center" aria-label="Excluir ${person.name}" title="Excluir dependente"><i data-lucide="trash-2" class="w-5 h-5"></i></button></article>`;
     }).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Adicione uma criança ou pessoa idosa para cuidar dela pelo app.</p></div>`;
     lucide.createIcons();
 }
@@ -1087,6 +1260,13 @@ function selectLegalResponsibility(value) {
         button.classList.toggle("border-gray-200", !selected);
         button.setAttribute("aria-pressed", String(selected));
     });
+    const legalFields = document.getElementById("dependent-legal-data");
+    if (legalFields) {
+        const visible = value === "Não";
+        legalFields.classList.toggle("hidden", !visible);
+        document.getElementById("dependent-responsible-name").required = visible;
+        document.getElementById("dependent-responsible-cpf").required = visible;
+    }
 }
 
 document.getElementById("dependent-form").addEventListener("submit", function (e) {
@@ -1095,19 +1275,49 @@ document.getElementById("dependent-form").addEventListener("submit", function (e
     const type = document.getElementById("dependent-type").value;
     const relation = document.getElementById("dependent-relation").value.trim() || "Responsável";
     const legal = document.getElementById("dependent-legal").value;
+    const name = document.getElementById("dependent-name").value.trim();
+    const cpf = document.getElementById("dependent-cpf").value.trim();
+    const responsibleName = document.getElementById("dependent-responsible-name").value.trim();
+    const responsibleCpf = document.getElementById("dependent-responsible-cpf").value.trim();
+
+    if (!name) {
+        showToast("Informe o nome do dependente.", "error");
+        return;
+    }
+    if (!cpf || !isValidCpf(cpf)) {
+        showToast("Informe um CPF válido do dependente.", "error");
+        return;
+    }
+    if (legal === "Não") {
+        if (!responsibleName) {
+            showToast("Informe o nome do responsável legal.", "error");
+            return;
+        }
+        if (!responsibleCpf || !isValidCpf(responsibleCpf)) {
+            showToast("Informe um CPF válido do responsável legal.", "error");
+            return;
+        }
+    }
+
     const dependents = DataService.getUserData("dependents");
     dependents.push({
-        name: document.getElementById("dependent-name").value.trim(),
+        name,
         id: "DEP" + Date.now(),
-        cpf: document.getElementById("dependent-cpf").value.trim(),
+        cpf,
         type,
         gender: document.getElementById("dependent-gender").value,
         relation: type === "Pediatria" ? `Responsável legal: ${legal}` : relation,
         companion: type === "Geriatria" && document.getElementById("dependent-companion").checked,
+        legalResponsible: legal,
+        responsibleName: legal === "Não" ? responsibleName : "",
+        responsibleCpf: legal === "Não" ? responsibleCpf : "",
     });
     DataService.saveUserData("dependents", dependents);
     closeModal("modal-dependent");
-    renderDependents();
+    this.reset();
+    selectDependentType("Pediatria");
+    selectLegalResponsibility("Sim");
+    renderDashboard();
     showToast("Pessoa adicionada", "success");
 });
 
@@ -1116,6 +1326,8 @@ function fillProfile(user) {
     document.getElementById("profile-email").value = user.email || "";
     document.getElementById("profile-phone").value = user.telefone || "";
     document.getElementById("profile-address").value = user.endereco || "";
+    document.getElementById("profile-cpf").value = user.cpf || "";
+    document.getElementById("profile-birthdate").value = user.data_nascimento || "";
     document.getElementById("profile-password").value = "";
     selectProfileIcon(getProfileIcon(user.profileIcon));
 }
@@ -1145,6 +1357,8 @@ function setupProfileUi() {
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-email">E-mail</label><input id="profile-email" type="email" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-password">Nova senha</label><input id="profile-password" type="password" minlength="6" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none" placeholder="Deixe em branco para manter a atual"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-phone">Telefone</label><input id="profile-phone" required maxlength="15" inputmode="numeric" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+            <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-cpf">CPF</label><input id="profile-cpf" required maxlength="14" inputmode="numeric" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+            <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-birthdate">Data de nascimento</label><input id="profile-birthdate" type="date" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-address">Endereço</label><input id="profile-address" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <button class="btn-primary text-white font-semibold px-5 py-3 rounded-xl text-sm">Salvar alterações</button>
         </form>
@@ -1198,10 +1412,22 @@ function selectProfileIcon(icon) {
 function saveProfile(e) {
     e.preventDefault();
     const user = DataService.getCurrentUser();
+    const cpf = document.getElementById("profile-cpf").value.trim();
+    const dataNascimento = document.getElementById("profile-birthdate").value;
+    if (!isValidCpf(cpf)) {
+        showToast("Informe um CPF válido.", "error");
+        return;
+    }
+    if (!dataNascimento) {
+        showToast("Informe a data de nascimento.", "error");
+        return;
+    }
     user.nome = document.getElementById("profile-name").value.trim();
     user.email = document.getElementById("profile-email").value.trim();
     user.telefone = document.getElementById("profile-phone").value.trim();
     user.endereco = document.getElementById("profile-address").value.trim();
+    user.cpf = cpf;
+    user.data_nascimento = dataNascimento;
     user.profileIcon = document.getElementById("profile-icon").value;
     const password = document.getElementById("profile-password").value;
     if (password) user.senha = password;
@@ -1211,7 +1437,15 @@ function saveProfile(e) {
 }
 
 function openChat(doctor) {
-    document.getElementById("chat-messages").dataset.doctor = doctor;
+    const messagesContainer = document.getElementById("chat-messages");
+    const history = DataService.getConversationHistory(doctor);
+    messagesContainer.dataset.doctor = doctor;
+    messagesContainer.innerHTML = history.length ? history.map((msg) => `
+        <div class="${msg.sender === "user" ? "text-right" : ""}">
+            <p class="${msg.sender === "user" ? "bg-brand-50 text-gray-700 rounded-xl p-3 text-sm inline-block max-w-[80%]" : "bg-gray-100 text-gray-700 rounded-xl p-3 text-sm inline-block max-w-[80%]"}">${escapeHtml(msg.text)}</p>
+        </div>
+    `).join("") : `<p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Olá! Esta é uma conversa segura com ${doctor}. Como posso ajudar?</p>`;
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
     showDashSection("dash-chat");
     showToast(`Conversa aberta com ${doctor}`, "success");
 }
@@ -1280,6 +1514,7 @@ function renderAppointments(appointments) {
             const isCurrentTeleconsulta = isTele && !isSessionEnded && a.date === currentDate && a.time === currentTime;
             const isWithinTolerance = isTele && !isSessionEnded && a.date === currentDate && getTimeInMinutes(a.time) >= getTimeInMinutes(currentTime) - 10 && getTimeInMinutes(a.time) <= getTimeInMinutes(currentTime) + 10;
             const canStartCall = isTele && !isSessionEnded && isWithinTolerance;
+            const beneficiaryLabel = a.beneficiaryName ? ` • ${a.beneficiaryName}` : "";
 
             return `
                 <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between card-hover">
@@ -1289,7 +1524,7 @@ function renderAppointments(appointments) {
                         </div>
                         <div>
                             <p class="font-bold text-gray-900">${a.doctor}</p>
-                            <p class="text-sm text-gray-500">${a.specialty} • ${a.type}</p>
+                            <p class="text-sm text-gray-500">${a.specialty} • ${a.type}${beneficiaryLabel}</p>
                             <p class="text-xs text-gray-400 mt-1">${formatDate(a.date)} às ${a.time}</p>
                             ${isSessionEnded ? '<p class="text-xs text-red-600 mt-1 font-semibold">Sessão encerrada</p>' : isCurrentTeleconsulta ? '<p class="text-xs text-green-600 mt-1 font-semibold">Atendimento disponível agora</p>' : ""}
                         </div>
@@ -1333,6 +1568,7 @@ function renderExams(exams) {
                         </div>
                         <div>
                             <p class="font-bold text-gray-900">${e.examType}</p>
+                            <p class="text-sm text-gray-500">${e.beneficiaryName ? `Para: ${e.beneficiaryName}` : "Beneficiário não informado"}</p>
                             <p class="text-xs text-gray-400 mt-1">${formatDate(e.date)} às ${e.time}</p>
                             ${e.notes ? `<p class="text-xs text-gray-400">${e.notes}</p>` : ""}
                         </div>
@@ -1451,6 +1687,7 @@ function openAppointmentModal() {
     if (!requirePlanAccess("Consultas")) return;
     if (isPlanLimitReachedForAction("appointment")) return;
     if (!canScheduleWithCurrentPlan()) return;
+    populateBeneficiaryFields();
     const dateInput = document.getElementById("apt-date");
     if (!dateInput.value) dateInput.value = getLocalDateString();
     updateAppointmentTimeOptions();
@@ -1468,6 +1705,14 @@ document.getElementById("apt-specialty").addEventListener("change", function () 
     selectMedico.disabled = !medicos.length;
 });
 
+document.getElementById("apt-type")?.addEventListener("change", function () {
+    const container = document.getElementById("apt-network-container");
+    const select = document.getElementById("apt-network");
+    const showNetwork = this.value === "Presencial";
+    container?.classList.toggle("hidden", !showNetwork);
+    if (select) select.required = showNetwork;
+});
+
 document.getElementById("apt-date").addEventListener("change", updateAppointmentTimeOptions);
 document.getElementById("exam-date").addEventListener("change", updateExamTimeOptions);
 
@@ -1475,6 +1720,13 @@ document.getElementById("appointment-form").addEventListener("submit", function 
     e.preventDefault();
 
     if (!canScheduleWithCurrentPlan()) return;
+
+    const beneficiaryId = document.getElementById("apt-beneficiary").value;
+    const beneficiaryInfo = getSelectedBeneficiaryInfo(beneficiaryId);
+    if (!beneficiaryInfo) {
+        showToast("Selecione o beneficiário da consulta.", "error");
+        return;
+    }
 
     const date = document.getElementById("apt-date").value;
     const time = document.getElementById("apt-time").value;
@@ -1499,11 +1751,14 @@ document.getElementById("appointment-form").addEventListener("submit", function 
     const novaConsulta = {
         id: "APT" + Date.now(),
         userId: user.id,
+        beneficiaryId,
+        beneficiaryName: beneficiaryInfo.name,
         specialty: document.getElementById("apt-specialty").value,
         doctor: document.getElementById("apt-doctor").value,
         date,
         time,
         type: document.getElementById("apt-type").value,
+        network: document.getElementById("apt-network")?.value || "",
     };
 
     const todasConsultas = DataService.getAppointments();
@@ -1536,9 +1791,17 @@ document.getElementById("chat-form").addEventListener("submit", function (e) {
     e.preventDefault();
     const input = document.getElementById("chat-input");
     const messages = document.getElementById("chat-messages");
+    const doctor = messages.dataset.doctor || "Médico";
     const text = input.value.trim();
     if (!text) return;
-    messages.insertAdjacentHTML("beforeend", `<p class="bg-gray-100 text-gray-700 rounded-xl p-3 text-sm ml-8">${text}</p><p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Mensagem recebida. O médico responderá assim que estiver disponível.</p>`);
+    const history = DataService.getConversationHistory(doctor);
+    const nextHistory = [...history, { sender: "user", text }, { sender: "doctor", text: "Mensagem recebida. O médico responderá assim que estiver disponível." }];
+    DataService.saveConversationHistory(doctor, nextHistory);
+    messages.innerHTML = nextHistory.map((msg) => `
+        <div class="${msg.sender === "user" ? "text-right" : ""}">
+            <p class="${msg.sender === "user" ? "bg-brand-50 text-gray-700 rounded-xl p-3 text-sm inline-block max-w-[80%]" : "bg-gray-100 text-gray-700 rounded-xl p-3 text-sm inline-block max-w-[80%]"}">${escapeHtml(msg.text)}</p>
+        </div>
+    `).join("");
     input.value = "";
     messages.scrollTop = messages.scrollHeight;
 });
@@ -1639,9 +1902,20 @@ document.querySelectorAll("#reg-phone, #profile-phone, #recovery-phone").forEach
     this.value = digits.length > 10 ? digits.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : digits.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
 }));
 
+document.getElementById("reg-cpf")?.addEventListener("input", function () {
+    this.value = formatCpf(this.value);
+});
+
+document.getElementById("profile-cpf")?.addEventListener("input", function () {
+    this.value = formatCpf(this.value);
+});
+
 document.getElementById("dependent-cpf").addEventListener("input", function () {
-    const digits = this.value.replace(/\D/g, "").slice(0, 11);
-    this.value = digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+    this.value = formatCpf(this.value);
+});
+
+document.getElementById("dependent-responsible-cpf").addEventListener("input", function () {
+    this.value = formatCpf(this.value);
 });
 
 
@@ -1670,6 +1944,7 @@ function openExamModal() {
     if (!requirePlanAccess("Exames")) return;
     if (isPlanLimitReachedForAction("exam")) return;
     if (!canScheduleWithCurrentPlan()) return;
+    populateBeneficiaryFields();
     const dateInput = document.getElementById("exam-date");
     if (!dateInput.value) dateInput.value = getLocalDateString();
     updateExamTimeOptions();
@@ -1683,6 +1958,13 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
     e.preventDefault();
 
     if (!canScheduleWithCurrentPlan()) return;
+
+    const beneficiaryId = document.getElementById("exam-beneficiary").value;
+    const beneficiaryInfo = getSelectedBeneficiaryInfo(beneficiaryId);
+    if (!beneficiaryInfo) {
+        showToast("Selecione o beneficiário do exame.", "error");
+        return;
+    }
 
     const date = document.getElementById("exam-date").value;
     const time = document.getElementById("exam-time").value;
@@ -1707,9 +1989,12 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
     const novoExame = {
         id: "EXM" + Date.now(),
         userId: user.id,
+        beneficiaryId,
+        beneficiaryName: beneficiaryInfo.name,
         examType: document.getElementById("exam-type").value,
         date,
         time,
+        network: document.getElementById("exam-network")?.value || "",
         notes: document.getElementById("exam-notes").value,
     };
 
@@ -1773,6 +2058,13 @@ function startTeleconsulta() {
     if (isPlanLimitReachedForAction("teleconsulta")) return;
     if (!canScheduleWithCurrentPlan()) return;
 
+    const beneficiaryId = document.getElementById("tele-beneficiary").value;
+    const beneficiaryInfo = getSelectedBeneficiaryInfo(beneficiaryId);
+    if (!beneficiaryInfo) {
+        showToast("Selecione para quem é a teleconsulta.", "error");
+        return;
+    }
+
     const especialidade = document.getElementById("tele-specialty").value;
     if (!especialidade) {
         showToast("Selecione uma especialidade", "error");
@@ -1787,6 +2079,8 @@ function startTeleconsulta() {
     const novaTeleconsulta = {
         id: "APT" + Date.now(),
         userId: user.id,
+        beneficiaryId,
+        beneficiaryName: beneficiaryInfo.name,
         specialty: especialidade,
         doctor: medicoSorteado,
         date: new Date().toISOString().slice(0, 10),
@@ -1867,6 +2161,7 @@ function showToast(msg, type) {
 (function init() {
     setupProfileUi();
     renderConvenioDetails();
+    populateBeneficiaryFields();
     const user = DataService.getCurrentUser();
     showPage(user ? "page-dashboard" : "page-landing");
     lucide.createIcons();
