@@ -105,6 +105,44 @@ const DataService = {
         const user = this.getCurrentUser();
         if (user) localStorage.setItem(`sp_${key}_${user.id}`, JSON.stringify(data));
     },
+
+    getFavoriteNetwork() {
+        const user = this.getCurrentUser();
+        return user ? localStorage.getItem(`sp_favorite_network_${user.id}`) || "" : "";
+    },
+    saveFavoriteNetwork(networkName) {
+        const user = this.getCurrentUser();
+        if (!user) return;
+        const key = `sp_favorite_network_${user.id}`;
+        if (networkName) localStorage.setItem(key, networkName);
+        else localStorage.removeItem(key);
+    },
+    getPhysicalCardRequest() {
+        const user = this.getCurrentUser();
+        return user ? JSON.parse(localStorage.getItem(`sp_physical_card_${user.id}`) || "null") : null;
+    },
+    savePhysicalCardRequest(request) {
+        const user = this.getCurrentUser();
+        if (user) localStorage.setItem(`sp_physical_card_${user.id}`, JSON.stringify(request));
+    },
+    getPhysicalCardRequestFor(personKey = "titular") {
+        const user = this.getCurrentUser();
+        if (!user) return null;
+        const key = personKey === "titular" ? `sp_physical_card_${user.id}` : `sp_physical_card_${user.id}_${personKey}`;
+        return JSON.parse(localStorage.getItem(key) || "null");
+    },
+    savePhysicalCardRequestFor(personKey, request) {
+        const user = this.getCurrentUser();
+        if (!user) return;
+        const key = personKey === "titular" ? `sp_physical_card_${user.id}` : `sp_physical_card_${user.id}_${personKey}`;
+        localStorage.setItem(key, JSON.stringify(request));
+    },
+    clearPhysicalCardRequestFor(personKey = "titular") {
+        const user = this.getCurrentUser();
+        if (!user) return;
+        const key = personKey === "titular" ? `sp_physical_card_${user.id}` : `sp_physical_card_${user.id}_${personKey}`;
+        localStorage.removeItem(key);
+    },
 };
 
 const networksDB = [
@@ -114,6 +152,26 @@ const networksDB = [
     { name: "Centro Médico União", address: "Alameda Santos, 1200 - Jardim Paulista, SP", distance: 8.2, specialties: ["Nutrição", "Psicologia", "Fisioterapia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 08:00 - 20:00" },
     { name: "Laboratório Diagnóstico Plus", address: "Rua Oscar Freire, 500 - Pinheiros, SP", distance: 11.7, specialties: ["Exames laboratoriais", "Ultrassonografia", "Ressonância"], types: ["Exames"], hours: "Seg-Sex: 07:00 - 19:00" },
     { name: "Rede Ativa Saúde", address: "Avenida Faria Lima, 2800 - Itaim Bibi, SP", distance: 14.9, specialties: ["Gastroenterologia", "Oftalmologia", "Pneumologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 08:00 - 18:00" },
+    { name: "Instituto Vida Integral", address: "Rua Vergueiro, 1850 - Vila Mariana, SP", distance: 0.8, specialties: ["Clínico Geral", "Endocrinologia", "Nutrição"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 07:00 - 20:00" },
+    { name: "Clínica Jardim Saúde", address: "Rua Joaquim Floriano, 940 - Itaim Bibi, SP", distance: 1.4, specialties: ["Dermatologia", "Oftalmologia", "Fisioterapia"], types: ["Presencial"], hours: "Seg-Sab: 08:00 - 18:00" },
+    { name: "Centro Diagnóstico Alvorada", address: "Av. Jabaquara, 2100 - Saúde, SP", distance: 2.1, specialties: ["Exames laboratoriais", "Tomografia", "Raio-X"], types: ["Exames"], hours: "Seg-Sex: 06:30 - 19:00" },
+    { name: "Hospital Santa Aurora", address: "Rua Dr. Diogo de Faria, 775 - Vila Clementino, SP", distance: 2.8, specialties: ["Cardiologia", "Ortopedia", "Pediatria"], types: ["Presencial", "Exames"], hours: "Todos os dias: 24 horas" },
+    { name: "Espaço Cuidar Saúde", address: "Rua Harmonia, 410 - Vila Madalena, SP", distance: 3.5, specialties: ["Psicologia", "Psiquiatria", "Medicina de Família"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 08:00 - 20:00" },
+    { name: "Clínica Movimento", address: "Rua Itapeva, 380 - Bela Vista, SP", distance: 4.2, specialties: ["Ortopedia", "Fisioterapia", "Reumatologia"], types: ["Presencial"], hours: "Seg-Sex: 07:00 - 19:00" },
+    { name: "Laboratório Vida Clara", address: "Av. Indianópolis, 1250 - Moema, SP", distance: 5.0, specialties: ["Exame de sangue", "Exame de urina", "Glicemia"], types: ["Exames"], hours: "Seg-Sab: 06:00 - 17:00" },
+    { name: "Núcleo Médico Paulista", address: "Rua Haddock Lobo, 890 - Cerqueira César, SP", distance: 5.8, specialties: ["Ginecologia", "Obstetrícia", "Mastologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 08:00 - 19:00" },
+    { name: "Hospital Parque das Flores", address: "Av. Ibirapuera, 3100 - Moema, SP", distance: 6.3, specialties: ["Cirurgia Geral", "Neurologia", "Pneumologia"], types: ["Presencial", "Exames"], hours: "Todos os dias: 24 horas" },
+    { name: "Centro Médico Liberdade", address: "Rua Galvão Bueno, 620 - Liberdade, SP", distance: 7.1, specialties: ["Clínico Geral", "Urologia", "Nefrologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 07:30 - 18:30" },
+    { name: "Instituto Bem Viver", address: "Rua Teodoro Sampaio, 1440 - Pinheiros, SP", distance: 7.9, specialties: ["Alergologia", "Pneumologia", "Otorrinolaringologia"], types: ["Presencial"], hours: "Seg-Sex: 08:00 - 18:00" },
+    { name: "Diagnósticos Vila Olímpia", address: "Rua Gomes de Carvalho, 1500 - Vila Olímpia, SP", distance: 9.0, specialties: ["Ressonância", "Ultrassonografia", "Ecocardiograma"], types: ["Exames"], hours: "Seg-Sex: 06:30 - 20:00" },
+    { name: "Rede Especializada São Bento", address: "Rua Líbero Badaró, 425 - Centro, SP", distance: 10.4, specialties: ["Hematologia", "Infectologia", "Endocrinologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 07:00 - 18:00" },
+    { name: "Hospital Metropolitano Saúde", address: "Av. Cruzeiro do Sul, 2650 - Santana, SP", distance: 12.8, specialties: ["Cardiologia", "Oncologia", "Cirurgia Geral"], types: ["Presencial", "Exames"], hours: "Todos os dias: 24 horas" },
+    { name: "Clínica Conecta Família", address: "Rua Tito, 980 - Vila Romana, SP", distance: 15.6, specialties: ["Pediatria", "Geriatria", "Medicina de Família"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 08:00 - 19:00" },
+    { name: "Centro Integrado Nova Estação", address: "Av. do Estado, 5200 - Cambuci, SP", distance: 18.3, specialties: ["Neurologia", "Psiquiatria", "Psicologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 08:00 - 18:00" },
+    { name: "Instituto Diagnóstico Paulista", address: "Av. Rebouças, 3600 - Pinheiros, SP", distance: 21.7, specialties: ["Tomografia", "Ressonância", "Exames laboratoriais"], types: ["Exames"], hours: "Seg-Sex: 06:00 - 21:00" },
+    { name: "Hospital Referência Cidade", address: "Av. das Nações Unidas, 14500 - Santo Amaro, SP", distance: 27.5, specialties: ["Ortopedia", "Cardiologia", "Oncologia"], types: ["Presencial", "Exames"], hours: "Todos os dias: 24 horas" },
+    { name: "Clínica Horizonte Leste", address: "Av. Radial Leste, 7800 - Tatuapé, SP", distance: 34.2, specialties: ["Clínico Geral", "Ginecologia", "Dermatologia"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sab: 08:00 - 18:00" },
+    { name: "Centro Saúde Leste", address: "Rua Serra Branca, 260 - Anália Franco, SP", distance: 40.5, specialties: ["Endocrinologia", "Geriatria", "Medicina de Família"], types: ["Presencial", "Teleconsulta"], hours: "Seg-Sex: 08:00 - 19:00" },
 ];
 
 function normalizeDoctorName(name) {
@@ -183,6 +241,7 @@ function getSelectedBeneficiaryInfo(beneficiaryId) {
 
 function getNearbyNetworks() {
     const user = DataService.getCurrentUser();
+    const favoriteNetwork = DataService.getFavoriteNetwork();
     const address = (user?.endereco || "").trim().toLowerCase();
     const addressHash = [...address].reduce((hash, character) => ((hash * 31) + character.charCodeAt(0)) >>> 0, 7);
     return [...networksDB]
@@ -190,12 +249,20 @@ function getNearbyNetworks() {
             ...network,
             distance: Number((network.distance * (0.75 + ((addressHash + index * 53) % 51) / 100)).toFixed(1)),
         }))
-        .sort((a, b) => a.distance - b.distance);
+        .sort((a, b) => {
+            const favoriteDifference = Number(b.name === favoriteNetwork) - Number(a.name === favoriteNetwork);
+            return favoriteDifference || a.distance - b.distance;
+        });
 }
 
 function buildNetworkOptions(selectedNetworkName = "") {
     const networks = getNearbyNetworks();
-    return `<option value="">Selecione uma rede próxima</option>${networks.map((network) => `<option value="${network.name}" ${selectedNetworkName === network.name ? "selected" : ""}>${network.name} • ${network.distance} km</option>`).join("")}`;
+    const favoriteNetwork = DataService.getFavoriteNetwork();
+    return `<option value="">Selecione uma rede próxima</option>${networks.map((network) => {
+        const isFavorite = network.name === favoriteNetwork;
+        const label = isFavorite ? `♥ Sua rede favorita: ${network.name} • ${network.distance} km` : `${network.name} • ${network.distance} km`;
+        return `<option value="${network.name}" ${selectedNetworkName === network.name ? "selected" : ""}>${label}</option>`;
+    }).join("")}`;
 }
 
 function getCurrentUserDependents() {
@@ -207,9 +274,10 @@ function populateBeneficiaryFields() {
     renderBeneficiarySelection("exam-beneficiary", "exam");
     renderBeneficiarySelection("tele-beneficiary");
     const aptNetwork = document.getElementById("apt-network");
-    if (aptNetwork) aptNetwork.innerHTML = buildNetworkOptions();
+    const favoriteNetwork = DataService.getFavoriteNetwork();
+    if (aptNetwork) aptNetwork.innerHTML = buildNetworkOptions(favoriteNetwork);
     const examNetwork = document.getElementById("exam-network");
-    if (examNetwork) examNetwork.innerHTML = buildNetworkOptions();
+    if (examNetwork) examNetwork.innerHTML = buildNetworkOptions(favoriteNetwork);
     const appointmentType = document.getElementById("apt-type");
     if (appointmentType) {
         const shouldShowNetwork = appointmentType.value === "Presencial";
@@ -234,6 +302,41 @@ function selectNetworkForCurrentAction(networkName) {
     }
     if (aptContainer) aptContainer.classList.toggle("hidden", !networkValue || document.getElementById("apt-type")?.value !== "Presencial");
     if (networkValue) showToast(`Rede ${networkName} selecionada.`, "success");
+}
+
+function toggleFavoriteNetwork(networkName) {
+    const favoriteNetwork = DataService.getFavoriteNetwork();
+    if (favoriteNetwork === networkName) {
+        DataService.saveFavoriteNetwork("");
+        renderHospitals();
+        populateBeneficiaryFields();
+        showToast("Rede removida dos favoritos.", "success");
+        return;
+    }
+
+    if (favoriteNetwork) {
+        favoriteReplacementTarget = networkName;
+        document.getElementById("confirm-title").textContent = "Você já possui uma rede favorita.";
+        document.getElementById("confirm-description").textContent = `${favoriteNetwork}. Você deseja substituir sua rede favorita por ${networkName}?`;
+        document.getElementById("confirm-action").textContent = "Tornar favorita";
+        document.getElementById("confirm-cancel-btn").textContent = "Cancelar";
+        document.getElementById("modal-confirm").classList.remove("hidden");
+        return;
+    }
+
+    DataService.saveFavoriteNetwork(networkName);
+    renderHospitals();
+    populateBeneficiaryFields();
+    showToast(`${networkName} adicionada aos favoritos.`, "success");
+}
+
+function setFavoriteNetwork(networkName) {
+    DataService.saveFavoriteNetwork(networkName);
+    favoriteReplacementTarget = "";
+    closeModal("modal-confirm");
+    renderHospitals();
+    populateBeneficiaryFields();
+    showToast(`${networkName} adicionada aos favoritos.`, "success");
 }
 
 
@@ -493,6 +596,76 @@ function updatePlanCards(activePlan = "") {
     });
 }
 
+function openPlanDetails(plan) {
+    const details = {
+        "Básico": {
+            subtitle: "Cuidados essenciais e rede regional.",
+            value: "R$ 49,90 por mês",
+            dependents: "Até 2 dependentes",
+            usage: "Até 10 consultas, exames e teleconsultas por mês",
+            network: "Rede credenciada regional, conforme cidade e regras da operadora",
+            specialties: "Clínico Geral, Cardiologia, Pediatria e especialidades disponíveis na rede",
+            coverage: "Agendamento, carteirinha digital e atendimentos presenciais ou por teleconsulta selecionados",
+            references: "Hapvida Nosso Plano, NotreDame Smart e Unimed Regional",
+            exams: "Hemograma, glicemia, colesterol, exame de urina e raio-X, conforme disponibilidade da rede",
+            benefits: "Carteirinha digital, lembretes automáticos, histórico de atendimentos e suporte pelo aplicativo",
+            access: "Atendimento presencial em unidades regionais e teleconsulta em especialidades selecionadas",
+            differentiators: "Entrada acessível para cuidados do dia a dia e até 2 dependentes",
+            conditions: "Disponibilidade, carência, coparticipação e elegibilidade devem ser confirmadas conforme a operadora.",
+        },
+        "Premium": {
+            subtitle: "Mais rede, especialistas e abrangência.",
+            value: "R$ 149,90 por mês",
+            dependents: "Até 4 dependentes",
+            usage: "Até 20 consultas, exames e teleconsultas por mês; 4 teleconsultas pela plataforma por mês",
+            network: "Rede credenciada ampliada, conforme região e regras da operadora",
+            specialties: "Clínico Geral, Cardiologia, Dermatologia, Ginecologia, Neurologia e outras especialidades da rede",
+            coverage: "Consultas, exames, teleconsulta, carteirinha digital e atendimento ampliado",
+            references: "Amil S380, Unimed Nacional e SulAmérica Exato",
+            exams: "Hemograma, perfil lipídico, ultrassonografia, eletrocardiograma, tomografia e exames preventivos",
+            benefits: "4 teleconsultas pela plataforma, descontos demonstrativos em exames, lembretes e suporte prioritário",
+            access: "Atendimento presencial em rede ampliada e teleconsulta para clínica geral e especialidades elegíveis",
+            differentiators: "Mais opções de especialistas, rede ampliada e até 4 dependentes",
+            conditions: "Rede, cobertura, carência, coparticipação e elegibilidade devem ser confirmadas conforme a operadora.",
+        },
+        "Premium Saúde Plus": {
+            subtitle: "Rede nacional e hospitais de referência.",
+            value: "R$ 399,90 por mês",
+            dependents: "Até 6 dependentes",
+            usage: "Consultas, exames e teleconsultas ilimitados",
+            network: "Rede nacional com hospitais e serviços de referência",
+            specialties: "Especialidades médicas, exames e teleconsultas conforme a rede disponível",
+            coverage: "Atendimento ampliado, acesso prioritário, descontos em exames e suporte ampliado",
+            references: "Amil One, Bradesco Saúde Nacional Plus e SulAmérica Prestige",
+            exams: "Exames laboratoriais e de imagem, ressonância, tomografia, ecocardiograma e check-up preventivo",
+            benefits: "Uso ilimitado, suporte prioritário, descontos demonstrativos, segunda opinião e até 6 dependentes",
+            access: "Rede nacional com hospitais de referência, atendimento presencial premium e teleconsulta ampliada",
+            differentiators: "Maior abrangência, prioridade no suporte e acesso a serviços diferenciados da rede",
+            conditions: "Condições, rede, cobertura, carência, coparticipação e elegibilidade devem ser confirmadas conforme a operadora.",
+        },
+    };
+    const planDetails = details[plan];
+    if (!planDetails) return;
+    document.getElementById("plan-details-title").textContent = plan;
+    document.getElementById("plan-details-subtitle").textContent = planDetails.subtitle;
+    document.getElementById("plan-details-content").innerHTML = [
+        ["Valor mensal", planDetails.value],
+        ["Dependentes", planDetails.dependents],
+        ["Consultas, exames e teleconsultas", planDetails.usage],
+        ["Rede credenciada", planDetails.network],
+        ["Especialidades disponíveis", planDetails.specialties],
+        ["Exames disponíveis", planDetails.exams],
+        ["Coberturas", planDetails.coverage],
+        ["Benefícios incluídos", planDetails.benefits],
+        ["Atendimento", planDetails.access],
+        ["Diferenciais", planDetails.differentiators],
+        ["Convênios de referência", planDetails.references],
+        ["Limites e condições", planDetails.conditions],
+    ].map(([label, value]) => `<section class="border border-gray-100 rounded-xl bg-gray-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-gray-400">${label}</p><p class="text-sm text-gray-700 mt-1 leading-relaxed">${value}</p></section>`).join("");
+    document.getElementById("modal-plan-details").classList.remove("hidden");
+    lucide.createIcons();
+}
+
 function renderConvenioDetails() {
     const details = {
         "Hapvida Nosso Plano": "Linha regional para cuidados essenciais.",
@@ -637,11 +810,114 @@ function selectPaymentMethod(method) {
         button.classList.toggle("border-gray-200", !selected);
         button.classList.toggle("text-gray-600", !selected);
     });
-    document.getElementById("card-payment-fields").classList.toggle("hidden", method === "pix");
+    document.getElementById("card-payment-fields").classList.toggle("hidden", method === "pix" || method === "boleto");
     document.getElementById("pix-payment-fields").classList.toggle("hidden", method !== "pix");
+    document.getElementById("boleto-payment-fields").classList.toggle("hidden", method !== "boleto");
     document.querySelectorAll("#card-payment-fields input").forEach((input) => {
-        input.required = method !== "pix";
+        input.required = method !== "pix" && method !== "boleto";
     });
+    const boletoValue = document.getElementById("boleto-payment-value");
+    const boletoDueDate = document.getElementById("boleto-payment-due-date");
+    if (method === "boleto" && pendingPlan) {
+        const boleto = getBoletoData(pendingPlan);
+        boletoValue.textContent = boleto.value;
+        boletoDueDate.textContent = boleto.dueDate;
+    }
+    const submitButton = document.getElementById("payment-submit-button");
+    submitButton.textContent = method === "boleto" ? "Criar boleto" : "Confirmar assinatura";
+    lucide.createIcons();
+}
+
+function getBoletoData(plan) {
+    const planValues = {
+        "Básico": "49,90",
+        "Premium": "149,90",
+        "Premium Saúde Plus": "399,90",
+    };
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 7);
+    const formattedDueDate = dueDate.toLocaleDateString("pt-BR");
+    const emissionDate = new Date().toLocaleDateString("pt-BR");
+    const documentNumber = `SP-${String(plan.length).padStart(2, "0")}-2026-0001`;
+    const line = "99990.00009 12345.678901 23456.789012 9 00000000000000";
+    return {
+        plan,
+        value: `R$ ${planValues[plan] || "0,00"}`,
+        dueDate: formattedDueDate,
+        emissionDate,
+        documentNumber,
+        line,
+        barcode: "99991234567890123456789000000000000000000000",
+        payer: "Cliente Demonstração",
+        payerCpf: "111.222.333-44",
+        beneficiary: "Saúde Plus Serviços Digitais Ltda.",
+        beneficiaryCnpj: "00.111.222/0001-00",
+        address: "Av. da Inovação, 1000 - Cidade Modelo / SP",
+    };
+}
+
+function buildBarcodeMarkup(value) {
+    return [...value].map((character, index) => {
+        const width = 1 + ((Number(character) || index + 1) % 3);
+        return `<span style="width:${width}px"></span>`;
+    }).join("");
+}
+
+function renderBoleto(boleto) {
+    const documentElement = document.getElementById("boleto-document");
+    const summary = document.getElementById("boleto-summary");
+    if (!documentElement || !summary) return;
+
+    summary.innerHTML = [
+        ["Vencimento", boleto.dueDate],
+        ["Valor", boleto.value],
+        ["Documento", boleto.documentNumber],
+        ["Plano", boleto.plan],
+    ].map(([label, value]) => `<div class="bg-brand-50 rounded-xl p-3"><span class="block text-xs text-gray-400">${label}</span><strong class="block text-sm text-gray-800 mt-1">${value}</strong></div>`).join("");
+
+    documentElement.innerHTML = `
+        <div class="boleto-topline">
+            <div class="boleto-brand"><span class="boleto-brand-mark">♥</span><span>Saúde Plus</span></div>
+            <div class="boleto-bank">BANCO DEMONSTRAÇÃO SAÚDE PLUS<small>Instituição fictícia para apresentação acadêmica</small></div>
+            <div class="boleto-code">999-9</div>
+        </div>
+        <div class="boleto-row">
+            <div class="boleto-fields"><span class="boleto-label">Beneficiário</span><strong>${boleto.beneficiary}</strong><span>${boleto.beneficiaryCnpj}</span></div>
+            <div class="boleto-fields"><span class="boleto-label">Data de emissão</span><strong>${boleto.emissionDate}</strong></div>
+            <div class="boleto-fields"><span class="boleto-label">Vencimento</span><strong>${boleto.dueDate}</strong></div>
+        </div>
+        <div class="boleto-row">
+            <div class="boleto-fields"><span class="boleto-label">Pagador</span><strong>${boleto.payer}</strong><span>CPF ${boleto.payerCpf}</span><span>${boleto.address}</span></div>
+            <div class="boleto-fields"><span class="boleto-label">Número do documento</span><strong>${boleto.documentNumber}</strong></div>
+        </div>
+        <div class="boleto-row">
+            <div class="boleto-instructions"><span class="boleto-label">Instruções</span><p>Pagamento demonstrativo referente ao plano ${boleto.plan}.<br>Não pagar. Este documento não possui validade bancária.</p></div>
+            <div class="boleto-fields"><span class="boleto-label">Valor do documento</span><strong>${boleto.value}</strong><span class="boleto-label">Valor cobrado</span><strong>${boleto.value}</strong></div>
+        </div>
+        <div class="boleto-line">${boleto.line}</div>
+        <div class="boleto-row" style="align-items:center; padding-top:8px;">
+            <div><span class="boleto-label">Código de barras fictício</span><div class="boleto-barcode">${buildBarcodeMarkup(boleto.barcode)}</div></div>
+            <div class="boleto-fields"><span class="boleto-label">Autenticação mecânica</span><strong>DOCUMENTO DE TESTE</strong><span>Uso exclusivo para demonstração</span></div>
+        </div>
+        <div class="boleto-footer">DOCUMENTO DE TESTE — SEM VALOR FINANCEIRO • Dados, banco e código de barras fictícios • Saúde Plus - PIM acadêmico</div>`;
+}
+
+function createBoleto() {
+    const boleto = getBoletoData(pendingPlan);
+    const user = DataService.getCurrentUser();
+    if (user) localStorage.setItem(`sp_boleto_${user.id}`, JSON.stringify(boleto));
+    renderBoleto(boleto);
+    document.getElementById("modal-boleto").classList.remove("hidden");
+    lucide.createIcons();
+    return boleto;
+}
+
+function printBoleto() {
+    window.print();
+}
+
+function viewBoleto() {
+    document.getElementById("boleto-document")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function detectCardBrand(number) {
@@ -673,6 +949,14 @@ document.getElementById("card-expiry").addEventListener("input", function () {
 
 document.getElementById("payment-form").addEventListener("submit", function (event) {
     event.preventDefault();
+    if (selectedPaymentMethod === "boleto") {
+        selectPlan(pendingPlan, false);
+        closeModal("modal-payment");
+        createBoleto();
+        renderSavedCard();
+        showToast("Boleto gerado com sucesso", "success");
+        return;
+    }
     if (selectedPaymentMethod !== "pix") {
         const number = document.getElementById("card-number").value.replace(/\D/g, "");
         if (number.length < 13) {
@@ -953,6 +1237,194 @@ function logout() {
 
 
 // ==================== 6. DASHBOARD ====================
+function getDigitalCardThemeClass(plan) {
+    if (plan === "Premium Saúde Plus") return "digital-card-theme-premium-plus";
+    if (plan === "Premium") return "digital-card-theme-premium";
+    return "digital-card-theme-standard";
+}
+
+function formatOptionalDate(value) {
+    return value ? formatDate(value) : "Não informado";
+}
+
+function renderDigitalCard(user, selectedPlan) {
+    const card = document.getElementById("digital-card");
+    if (!card) return;
+    const plan = selectedPlan || "Nenhum plano contratado";
+    card.classList.remove("digital-card-theme-standard", "digital-card-theme-premium", "digital-card-theme-premium-plus");
+    card.classList.add(getDigitalCardThemeClass(plan));
+    document.getElementById("card-name").textContent = user.nome || "Não informado";
+    document.getElementById("card-id").textContent = "SP" + String(user.id).padStart(6, "0");
+    document.getElementById("card-cpf").textContent = user.cpf || "Não informado";
+    document.getElementById("card-plan").textContent = plan;
+    document.getElementById("card-valid").textContent = plan && plan !== "Nenhum plano contratado" ? (() => { const validity = new Date(); validity.setFullYear(validity.getFullYear() + 1); return validity.toLocaleDateString("pt-BR"); })() : "Não informado";
+    document.getElementById("card-birthdate").textContent = formatOptionalDate(user.data_nascimento);
+    document.getElementById("card-beneficiary-type").textContent = "Titular";
+    renderPhysicalCardStatus();
+    renderDependentPhysicalCards();
+}
+
+function renderPhysicalCardStatus() {
+    const container = document.getElementById("physical-card-status");
+    const request = DataService.getPhysicalCardRequestFor("titular");
+    if (!container) return;
+    if (!request) {
+        container.innerHTML = "";
+        return;
+    }
+    const status = request.status || "Solicitação recebida";
+    const statusClass = { "Solicitação recebida": "status-received", "Em produção": "status-production", Enviada: "status-shipped", Entregue: "status-delivered" }[status] || "status-received";
+    const canCancel = !["Enviada", "Entregue", "cancelada"].includes(status);
+    container.innerHTML = `<div class="bg-white rounded-2xl border border-gray-100 p-5"><div class="flex items-start justify-between gap-3"><div><h3 class="font-bold text-gray-900">Carteirinha física</h3><p class="text-sm text-gray-500 mt-1">Status</p></div><span class="physical-status-badge ${statusClass}">${escapeHtml(status)}</span></div><div class="mt-4 flex items-center justify-between text-sm"><span class="text-gray-500">Número do pedido</span><strong class="font-mono text-gray-800">${escapeHtml(request.number)}</strong></div>${canCancel ? `<button type="button" onclick="confirmDelete('physical-card','titular')" class="text-sm font-semibold text-red-500 hover:underline mt-4">Cancelar solicitação</button>` : ""}</div>`;
+}
+
+function renderDependentPhysicalCards() {
+    const container = document.getElementById("dependent-physical-cards");
+    if (!container) return;
+    const dependents = DataService.getUserData("dependents");
+    const user = DataService.getCurrentUser();
+    const plan = getSelectedPlan(user) || "Nenhum plano contratado";
+    if (!dependents.length) {
+        container.innerHTML = "";
+        return;
+    }
+    container.innerHTML = `<div class="mb-4"><h3 class="text-lg font-bold text-gray-900">Carteirinhas dos dependentes</h3><p class="text-sm text-gray-500 mt-1">Solicite e acompanhe a carteirinha física de cada dependente.</p></div><div class="space-y-3">${dependents.map((person, index) => {
+        const personKey = `dependent_${person.id || index}`;
+        const request = DataService.getPhysicalCardRequestFor(personKey);
+        const status = request?.status || "Não solicitada";
+        const statusClass = request ? ({ "Solicitação recebida": "status-received", "Em produção": "status-production", Enviada: "status-shipped", Entregue: "status-delivered" }[status] || "status-received") : "status-none";
+        const canCancel = request && !["Enviada", "Entregue", "cancelada"].includes(status);
+        return `<div class="bg-white rounded-2xl border border-gray-100 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"><div><p class="font-bold text-gray-900">${escapeHtml(person.name)}</p><p class="text-sm text-gray-500">${escapeHtml(person.relation || person.type || "Dependente")} • Plano ${escapeHtml(plan)}</p><span class="physical-status-badge ${statusClass} inline-block mt-2">${escapeHtml(status)}</span></div><div class="flex flex-wrap gap-3">${request && canCancel ? `<button type="button" onclick="confirmDelete('physical-card','${personKey}')" class="text-sm font-semibold text-red-500 hover:underline">Cancelar solicitação</button>` : ""}${!request || status === "cancelada" ? `<button type="button" onclick="openPhysicalCardRequest('${personKey}')" class="btn-primary text-white font-semibold px-4 py-2 rounded-xl text-sm">Solicitar carteirinha física</button>` : ""}</div></div>`;
+    }).join("")}</div>`;
+}
+
+function getPhysicalCardFormData() {
+    const ids = ["name", "cpf", "birthdate", "cep", "street", "number", "complement", "neighborhood", "city", "state", "phone", "email"];
+    return Object.fromEntries(ids.map((id) => [id, document.getElementById(`physical-${id}`).value.trim()]));
+}
+
+let physicalCepRequestSequence = 0;
+
+function setPhysicalCepStatus(message, type = "neutral") {
+    const status = document.getElementById("physical-cep-status");
+    if (!status) return;
+    status.textContent = message;
+    status.className = `text-xs mt-1 min-h-4 ${type === "error" ? "text-red-500" : type === "success" ? "text-mint-600" : "text-gray-400"}`;
+}
+
+async function lookupPhysicalCardCep() {
+    const cepInput = document.getElementById("physical-cep");
+    if (!cepInput) return;
+    const digits = cepInput.value.replace(/\D/g, "").slice(0, 8);
+    cepInput.value = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    if (digits.length !== 8) {
+        setPhysicalCepStatus("");
+        return;
+    }
+
+    const requestSequence = ++physicalCepRequestSequence;
+    setPhysicalCepStatus("Buscando endereço...");
+    try {
+        const response = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+        if (!response.ok) throw new Error("Falha na consulta");
+        const address = await response.json();
+        if (requestSequence !== physicalCepRequestSequence) return;
+        if (address.erro) {
+            setPhysicalCepStatus("CEP não encontrado. Verifique o número informado.", "error");
+            return;
+        }
+        document.getElementById("physical-street").value = address.logradouro || "";
+        document.getElementById("physical-neighborhood").value = address.bairro || "";
+        document.getElementById("physical-city").value = address.localidade || "";
+        document.getElementById("physical-state").value = address.uf || "";
+        setPhysicalCepStatus("Endereço preenchido automaticamente.", "success");
+    } catch (error) {
+        if (requestSequence !== physicalCepRequestSequence) return;
+        setPhysicalCepStatus("Não foi possível consultar o CEP. Tente novamente.", "error");
+    }
+}
+
+document.getElementById("physical-cep")?.addEventListener("input", lookupPhysicalCardCep);
+
+function fillPhysicalCardForm(user, dependent = null) {
+    const values = { name: dependent?.name || user.nome || "", cpf: dependent?.cpf || user.cpf || "", birthdate: dependent?.birthdate || dependent?.data_nascimento || user.data_nascimento || "", street: user.endereco || "", phone: user.telefone || "", email: user.email || "" };
+    Object.entries(values).forEach(([key, value]) => { document.getElementById(`physical-${key}`).value = value; });
+}
+
+let physicalCardTargetKey = "titular";
+let physicalCardTargetPerson = null;
+
+function getPhysicalCardTargetPerson(targetKey) {
+    if (targetKey === "titular") return null;
+    const dependents = DataService.getUserData("dependents");
+    const targetId = String(targetKey).replace(/^dependent_/, "");
+    return dependents.find((person, index) => String(person.id || index) === targetId) || null;
+}
+
+function openPhysicalCardRequest(targetKey = "titular") {
+    const existing = DataService.getPhysicalCardRequestFor(targetKey);
+    if (existing) {
+        showToast(`Solicitação ${existing.number} já registrada.`, "success");
+        return;
+    }
+    const user = DataService.getCurrentUser();
+    if (!user) return;
+    physicalCardTargetKey = targetKey;
+    physicalCardTargetPerson = getPhysicalCardTargetPerson(targetKey);
+    document.getElementById("physical-card-form").classList.remove("hidden");
+    document.getElementById("physical-card-review").classList.add("hidden");
+    document.getElementById("physical-card-success").classList.add("hidden");
+    document.getElementById("physical-card-modal-subtitle").textContent = "Preencha os dados de entrega.";
+    fillPhysicalCardForm(user, physicalCardTargetPerson);
+    document.querySelector("#modal-physical-card h3").textContent = physicalCardTargetPerson ? "Solicitar carteirinha física do dependente" : "Solicitar carteirinha física";
+    document.getElementById("modal-physical-card").classList.remove("hidden");
+    lucide.createIcons();
+}
+
+function renderPhysicalCardReview(data) {
+    const review = document.getElementById("physical-card-review");
+    const display = [["Beneficiário", data.name], ["CPF", data.cpf], ["Data de nascimento", data.birthdate ? formatDate(data.birthdate) : ""], ["Endereço", [data.street, data.number, data.complement, data.neighborhood, data.city, data.state, data.cep].filter(Boolean).join(", ")], ["Telefone", data.phone], ["E-mail", data.email]];
+    review.innerHTML = `<div class="space-y-4"><div><h4 class="text-lg font-bold text-gray-900">Confira seus dados</h4><p class="text-sm text-gray-500 mt-1">Revise as informações antes de confirmar.</p></div><div class="space-y-3">${display.filter(([, value]) => value).map(([label, value]) => `<div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-2 text-sm"><span class="text-gray-500">${label}</span><strong class="text-gray-800 text-right">${escapeHtml(value)}</strong></div>`).join("")}</div><div class="flex flex-col-reverse sm:flex-row gap-3 pt-2"><button type="button" onclick="backToPhysicalCardForm()" class="flex-1 px-4 py-3 rounded-xl border border-gray-200 font-semibold text-sm text-gray-700 hover:bg-gray-50 transition">Voltar</button><button type="button" onclick="confirmPhysicalCardRequest()" class="flex-1 btn-primary text-white font-semibold py-3 rounded-xl text-sm">Solicitar carteirinha</button></div></div>`;
+    document.getElementById("physical-card-form").classList.add("hidden");
+    review.classList.remove("hidden");
+    document.getElementById("physical-card-modal-subtitle").textContent = "Confira os dados antes de enviar.";
+}
+
+function backToPhysicalCardForm() {
+    document.getElementById("physical-card-review").classList.add("hidden");
+    document.getElementById("physical-card-form").classList.remove("hidden");
+    document.getElementById("physical-card-modal-subtitle").textContent = "Preencha os dados de entrega.";
+}
+
+function confirmPhysicalCardRequest() {
+    const request = { ...physicalCardDraft, number: `#SP-${String(Date.now()).slice(-6)}`, status: "Solicitação recebida" };
+    request.personKey = physicalCardTargetKey;
+    DataService.savePhysicalCardRequestFor(physicalCardTargetKey, request);
+    document.getElementById("physical-card-form").classList.add("hidden");
+    document.getElementById("physical-card-review").classList.add("hidden");
+    const success = document.getElementById("physical-card-success");
+    success.innerHTML = `<div class="w-14 h-14 mx-auto rounded-full bg-mint-100 flex items-center justify-center mb-4"><i data-lucide="check" class="w-7 h-7 text-mint-600"></i></div><h4 class="text-xl font-bold text-gray-900">Solicitação realizada!</h4><p class="text-sm text-gray-500 mt-2">Seu pedido de carteirinha física foi registrado.</p><div class="bg-gray-50 rounded-xl p-4 mt-5 text-sm text-left space-y-2"><div class="flex justify-between gap-4"><span class="text-gray-500">Número da solicitação</span><strong class="font-mono">${request.number}</strong></div><div class="flex justify-between gap-4"><span class="text-gray-500">Status</span><strong class="text-mint-700">${request.status}</strong></div></div><button type="button" onclick="closeModal('modal-physical-card')" class="w-full btn-primary text-white font-semibold py-3 rounded-xl text-sm mt-5">Voltar para carteirinha</button>`;
+    success.classList.remove("hidden");
+    document.getElementById("physical-card-modal-subtitle").textContent = "Pedido registrado.";
+    renderPhysicalCardStatus();
+    renderDependents();
+    renderDependentPhysicalCards();
+    lucide.createIcons();
+    showToast("Solicitação realizada!", "success");
+}
+
+let physicalCardDraft = null;
+
+document.getElementById("physical-card-form")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    physicalCardDraft = getPhysicalCardFormData();
+    renderPhysicalCardReview(physicalCardDraft);
+});
+
+function flipDigitalCard() {
+    document.getElementById("digital-card")?.classList.toggle("is-flipped");
+}
+
 function renderDashboard() {
     const user = DataService.getCurrentUser();
     if (!user) {
@@ -968,20 +1440,10 @@ function renderDashboard() {
     document.getElementById("user-avatar-icon").setAttribute("data-lucide", getProfileIcon(user.profileIcon));
 
     // Carteirinha digital
-    document.getElementById("card-name").textContent = user.nome;
-    document.getElementById("card-email").textContent = user.email;
     const planoPago = getSelectedPlan(user);
     user.plano = planoPago;
     DataService.setCurrentUser(user);
-    document.getElementById("card-plan").textContent = planoPago ? "Plano " + planoPago : "Nenhum plano contratado";
-    document.getElementById("card-id").textContent = "SP" + String(user.id).padStart(6, "0");
-
-    const validade = new Date();
-    validade.setFullYear(validade.getFullYear() + 1);
-    document.getElementById("card-valid").textContent = validade.toLocaleDateString("pt-BR", {
-        month: "2-digit",
-        year: "numeric",
-    });
+    renderDigitalCard(user, planoPago);
     updatePlanCards(planoPago);
     applyPlanLockState();
     updateScheduleActionButtons();
@@ -990,15 +1452,18 @@ function renderDashboard() {
     // Estatísticas + listas (filtradas pelo usuário logado)
     const appointments = DataService.getAppointments().filter((a) => a.userId === user.id);
     const exams = DataService.getExams().filter((e) => e.userId === user.id);
+    const regularAppointments = appointments.filter((appointment) => appointment.type !== "Teleconsulta" && isPendingSchedule(appointment));
+    const pendingExams = exams.filter((exam) => isPendingSchedule(exam));
     const activeTeleconsultas = appointments.filter((appointment) => appointment.type === "Teleconsulta" && isTeleconsultaScheduled(appointment));
 
-    document.getElementById("stat-appointments").textContent = appointments.length;
-    document.getElementById("stat-exams").textContent = exams.length;
+    document.getElementById("stat-appointments").textContent = regularAppointments.length;
+    document.getElementById("stat-exams").textContent = pendingExams.length;
     document.getElementById("stat-tele").textContent = activeTeleconsultas.length;
 
-    renderAppointments(appointments);
+    renderAppointments(regularAppointments);
     renderExams(exams);
     renderTeleconsultas(appointments);
+    renderTeleconsultaHistory(appointments);
     renderRecentItems(appointments, exams);
     renderHospitals();
     renderContacts(appointments);
@@ -1009,6 +1474,7 @@ function renderDashboard() {
 function isTeleconsultaScheduled(appointment, referenceDate = new Date()) {
     if (!appointment || appointment.type !== "Teleconsulta") return false;
     if (isTeleconsultaSessionEnded(appointment)) return false;
+    if (isTeleconsultaReconnectAvailable(appointment, referenceDate)) return true;
 
     const scheduledAt = new Date(`${appointment.date}T${appointment.time}`);
     const toleranceWindow = new Date(scheduledAt.getTime() + 10 * 60000);
@@ -1018,6 +1484,11 @@ function isTeleconsultaScheduled(appointment, referenceDate = new Date()) {
 function renderTeleconsultas(appointments) {
     const container = document.getElementById("teleconsultas-agendadas");
     if (!container) return;
+
+    if (teleReconnectTimer) {
+        clearInterval(teleReconnectTimer);
+        teleReconnectTimer = null;
+    }
 
     const teleconsultas = appointments.filter((appointment) => isTeleconsultaScheduled(appointment));
     const now = new Date();
@@ -1035,8 +1506,14 @@ function renderTeleconsultas(appointments) {
     container.innerHTML = orderedTeleconsultas
         .map((appointment) => {
             const sessionEnded = isTeleconsultaSessionEnded(appointment);
+            const reconnectAvailable = isTeleconsultaReconnectAvailable(appointment);
             const appointmentDateTime = new Date(`${appointment.date}T${appointment.time}`);
-            const canOpen = !sessionEnded && now >= appointmentDateTime && now <= new Date(appointmentDateTime.getTime() + 10 * 60000);
+            const canOpen = !sessionEnded && (reconnectAvailable || (now >= appointmentDateTime && now <= new Date(appointmentDateTime.getTime() + 10 * 60000)));
+            const reconnectMessage = reconnectAvailable
+                ? `<p class="text-xs text-amber-700 mt-1 font-semibold">Você pode retornar por mais <span data-tele-reconnect-countdown="${appointment.id}">${formatTeleconsultaReconnectTime(appointment)}</span></p>`
+                : sessionEnded
+                    ? '<p class="text-xs text-red-600 mt-1 font-semibold">Sessão encerrada</p>'
+                    : canOpen ? '<p class="text-xs text-green-600 mt-1 font-semibold">Atendimento disponível agora</p>' : "";
             return `
                 <div class="bg-white rounded-2xl border border-gray-100 p-4 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-3 min-w-0">
@@ -1047,13 +1524,13 @@ function renderTeleconsultas(appointments) {
                             <p class="font-bold text-gray-900 truncate">Dr. ${appointment.doctor.replace("Dr. ", "").replace("Dra. ", "")}</p>
                             <p class="text-sm text-gray-500">${appointment.specialty} • Teleconsulta</p>
                             <p class="text-xs text-gray-400 mt-1">${formatDate(appointment.date)} às ${appointment.time}</p>
-                            ${sessionEnded ? '<p class="text-xs text-red-600 mt-1 font-semibold">Sessão encerrada</p>' : canOpen ? '<p class="text-xs text-green-600 mt-1 font-semibold">Atendimento disponível agora</p>' : ""}
+                            ${reconnectMessage}
                         </div>
                     </div>
                     <div class="flex items-center gap-2 flex-shrink-0">
                         ${canOpen ? `<button onclick="openScheduledTeleconsulta('${appointment.id}')" class="btn-primary text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2">
                             <i data-lucide="video" class="w-4 h-4"></i>
-                            Iniciar chamada
+                            ${reconnectAvailable ? "Retornar à chamada" : "Iniciar chamada"}
                         </button>` : ""}
                         <button onclick="confirmDelete('appointment','${appointment.id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-400 hover:text-red-500 transition">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
@@ -1064,6 +1541,48 @@ function renderTeleconsultas(appointments) {
         .join("");
 
     lucide.createIcons();
+    if (teleconsultas.some((appointment) => isTeleconsultaReconnectAvailable(appointment))) {
+        teleReconnectTimer = setInterval(() => {
+            const currentUser = DataService.getCurrentUser();
+            if (!currentUser) return;
+            renderTeleconsultas(DataService.getAppointments().filter((appointment) => appointment.userId === currentUser.id));
+        }, 1000);
+    }
+}
+
+function isTeleconsultaCompleted(appointment, referenceDate = new Date()) {
+    if (!appointment || appointment.type !== "Teleconsulta") return false;
+    if (isTeleconsultaSessionEnded(appointment)) return true;
+    if (isTeleconsultaReconnectAvailable(appointment, referenceDate)) return false;
+    return new Date(`${appointment.date}T${appointment.time}`) < referenceDate;
+}
+
+function renderTeleconsultaHistory(appointments) {
+    const container = document.getElementById("teleconsultas-history-list");
+    if (!container) return;
+    const completed = appointments
+        .filter((appointment) => isTeleconsultaCompleted(appointment))
+        .sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
+
+    container.innerHTML = completed.length ? completed.map((appointment) => `
+        <div class="bg-gray-50 rounded-2xl border border-gray-100 p-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0"><i data-lucide="video" class="w-5 h-5 text-purple-600"></i></div>
+            <div class="min-w-0">
+                <p class="font-bold text-gray-900 truncate">${escapeHtml(appointment.doctor || "Profissional")}</p>
+                <p class="text-sm text-gray-500">${escapeHtml(appointment.specialty || "Especialidade")} • Teleconsulta</p>
+                <p class="text-xs text-gray-400 mt-1">${formatDate(appointment.date)} às ${escapeHtml(appointment.time || "")}</p>
+            </div>
+            <span class="ml-auto text-xs font-semibold text-gray-500 whitespace-nowrap">Concluída</span>
+        </div>`).join("") : `<p class="text-sm text-gray-500 bg-gray-50 rounded-xl p-4">Nenhuma teleconsulta concluída ainda.</p>`;
+    lucide.createIcons();
+}
+
+function toggleTeleconsultaHistory() {
+    const history = document.getElementById("teleconsultas-history");
+    const button = document.getElementById("tele-history-toggle");
+    if (!history || !button) return;
+    const isHidden = history.classList.toggle("hidden");
+    button.textContent = isHidden ? "Histórico de teleconsultas" : "Ocultar histórico";
 }
 
 function getTeleconsultaSessionKey(appointmentId) {
@@ -1076,7 +1595,19 @@ function isTeleconsultaSessionEnded(appointment) {
     if (!appointment?.id) return false;
     const key = getTeleconsultaSessionKey(appointment.id);
     if (!key) return false;
-    return localStorage.getItem(key) === "ended";
+    const sessionState = localStorage.getItem(key);
+    if (sessionState === "ended") return true;
+    if (!sessionState) return false;
+    try {
+        const state = JSON.parse(sessionState);
+        if (state.status === "reconnect" && Date.now() >= state.reconnectUntil) {
+            localStorage.setItem(key, "ended");
+            return true;
+        }
+        return false;
+    } catch (error) {
+        return false;
+    }
 }
 
 function markTeleconsultaSessionEnded(appointmentId) {
@@ -1084,6 +1615,37 @@ function markTeleconsultaSessionEnded(appointmentId) {
     const key = getTeleconsultaSessionKey(appointmentId);
     if (!key) return;
     localStorage.setItem(key, "ended");
+}
+
+function markTeleconsultaReconnectAvailable(appointmentId) {
+    if (!appointmentId) return;
+    const key = getTeleconsultaSessionKey(appointmentId);
+    if (!key) return;
+    localStorage.setItem(key, JSON.stringify({ status: "reconnect", reconnectUntil: Date.now() + 60000 }));
+}
+
+function isTeleconsultaReconnectAvailable(appointment, referenceDate = new Date()) {
+    if (!appointment?.id) return false;
+    const key = getTeleconsultaSessionKey(appointment.id);
+    if (!key) return false;
+    try {
+        const state = JSON.parse(localStorage.getItem(key) || "null");
+        return state?.status === "reconnect" && referenceDate.getTime() < state.reconnectUntil;
+    } catch (error) {
+        return false;
+    }
+}
+
+function formatTeleconsultaReconnectTime(appointment) {
+    const key = getTeleconsultaSessionKey(appointment?.id);
+    if (!key) return "00:00";
+    try {
+        const state = JSON.parse(localStorage.getItem(key) || "null");
+        const remainingSeconds = Math.max(0, Math.ceil((state.reconnectUntil - Date.now()) / 1000));
+        return `00:${String(remainingSeconds).padStart(2, "0")}`;
+    } catch (error) {
+        return "00:00";
+    }
 }
 
 function openScheduledTeleconsulta(appointmentId) {
@@ -1106,30 +1668,18 @@ function openScheduledTeleconsulta(appointmentId) {
     const now = new Date();
     const timeoutLimit = new Date(scheduledAt.getTime() + 10 * 60000);
 
-    if (now > timeoutLimit) {
+    if (now > timeoutLimit && !isTeleconsultaReconnectAvailable(appointment)) {
         markTeleconsultaSessionEnded(appointment.id);
         showToast("Sessão encerrada", "error");
         renderDashboard();
         return;
     }
 
-    document.getElementById("tele-specialty").value = appointment.specialty;
-    document.getElementById("tele-doctor-name").textContent = appointment.doctor;
-    document.getElementById("tele-doctor-spec").textContent = appointment.specialty;
-    activeTeleconsultaId = appointment.id;
-    showPage("page-teleconsulta");
-    if (teleTimer) {
-        clearInterval(teleTimer);
-        teleTimer = null;
+    if (isTeleconsultaReconnectAvailable(appointment)) {
+        localStorage.removeItem(getTeleconsultaSessionKey(appointment.id));
     }
-    teleSeconds = 0;
-    document.getElementById("tele-timer").textContent = "00:00";
-    teleTimer = setInterval(() => {
-        teleSeconds++;
-        const minutos = String(Math.floor(teleSeconds / 60)).padStart(2, "0");
-        const segundos = String(teleSeconds % 60).padStart(2, "0");
-        document.getElementById("tele-timer").textContent = `${minutos}:${segundos}`;
-    }, 1000);
+    activeTeleconsultaId = appointment.id;
+    beginTeleconsultaSession(appointment);
 }
 
 const hospitalsDB = [
@@ -1143,6 +1693,7 @@ function renderHospitals() {
     const container = document.getElementById("hospital-list");
     if (!container) return;
     const radius = Number(document.getElementById("hospital-radius").value);
+    const favoriteNetwork = DataService.getFavoriteNetwork();
     const available = getNearbyNetworks().filter((network) => network.distance <= radius);
     container.innerHTML = available.length ? available.map((network) => `
         <article class="bg-white rounded-2xl border border-gray-100 p-5 card-hover flex flex-col gap-4">
@@ -1150,7 +1701,7 @@ function renderHospitals() {
                 <div class="flex gap-3 min-w-0">
                     <div class="w-11 h-11 rounded-xl bg-brand-100 flex items-center justify-center" aria-hidden="true"><i data-lucide="map-pin" class="w-5 h-5 text-brand-600"></i></div>
                     <div class="min-w-0">
-                        <p class="font-bold text-gray-900 truncate">${network.name}</p>
+                        <div class="flex flex-wrap items-center gap-2"><p class="font-bold text-gray-900 truncate">${network.name}</p>${network.name === favoriteNetwork ? '<span class="bg-mint-50 text-mint-700 px-2 py-1 rounded-full text-[10px] font-bold">REDE FAVORITA</span>' : ""}</div>
                         <p class="text-sm text-gray-500">${network.address}</p>
                         <p class="text-xs text-gray-400 mt-1">${network.types.join(" • ")}</p>
                     </div>
@@ -1158,10 +1709,9 @@ function renderHospitals() {
                 <span class="text-sm font-bold text-brand-600 whitespace-nowrap">${network.distance} km</span>
             </div>
             <div class="flex flex-wrap gap-2 text-xs text-gray-600">
-                <span class="bg-brand-50 text-brand-700 px-2 py-1 rounded-full">${network.specialties.slice(0, 2).join(" • ")}</span>
                 <span class="bg-mint-50 text-mint-700 px-2 py-1 rounded-full">${network.hours}</span>
             </div>
-            <button type="button" onclick="selectNetworkForCurrentAction('${network.name}')" class="btn-primary text-white font-semibold px-3 py-2.5 rounded-xl text-sm">Selecionar rede</button>
+            <button type="button" onclick="toggleFavoriteNetwork('${network.name}')" class="${network.name === favoriteNetwork ? "bg-mint-50 text-mint-700 border border-mint-200" : "border border-brand-600 text-brand-600 hover:bg-brand-50"} font-semibold px-3 py-2.5 rounded-xl text-sm transition">${network.name === favoriteNetwork ? "♥ Rede favorita" : "♡ Favoritar rede"}</button>
         </article>`).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Nenhum hospital encontrado neste raio.</p></div>`;
     lucide.createIcons();
 }
@@ -1192,8 +1742,24 @@ function renderDependents() {
         const iconBackground = isChild ? "bg-brand-100" : isAdult ? "bg-mint-100" : "bg-orange-100";
         const targetId = person.id || "";
         const legalText = person.legalResponsible === "Não" ? `Responsável: ${person.responsibleName || "Não informado"}` : "Responsável legal: Sim";
-        return `<article class="dependent-card bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4"><div class="dependent-card-info flex min-w-0 items-center gap-4"><div class="w-12 h-12 rounded-full ${iconBackground} flex-shrink-0 flex items-center justify-center"><i data-lucide="${icon}" class="w-6 h-6 ${iconColor}"></i></div><div class="min-w-0"><p class="font-bold text-gray-900 truncate">${person.name}</p><p class="text-sm text-gray-500 truncate">${person.type} • ${person.relation}</p>${!isChild ? `<p class="text-xs text-gray-500 mt-1">Acompanhante: ${person.companion ? "Sim" : "Não"}</p>` : ""}<p class="text-xs text-gray-500 mt-1">${legalText}</p></div></div><button type="button" onclick="confirmDelete('dependent', '${targetId}', ${index})" class="dependent-delete-button flex-shrink-0 w-10 h-10 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 transition flex items-center justify-center" aria-label="Excluir ${person.name}" title="Excluir dependente"><i data-lucide="trash-2" class="w-5 h-5"></i></button></article>`;
+        const request = DataService.getPhysicalCardRequestFor(`dependent_${targetId || index}`);
+        const canCancelRequest = request && !["Enviada", "Entregue", "cancelada"].includes(request.status);
+        const cardAction = request && canCancelRequest ? `<p class="text-xs text-gray-500 mt-3">Carteirinha física: <strong>${escapeHtml(request.status || "Solicitação recebida")}</strong></p><button type="button" onclick="event.stopPropagation(); confirmDelete('physical-card', '${`dependent_${targetId || index}`}')" class="text-xs font-semibold text-red-500 hover:underline mt-2">Cancelar solicitação</button>` : request ? `<p class="text-xs text-gray-500 mt-3">Carteirinha física: <strong>${escapeHtml(request.status)}</strong></p>` : `<button type="button" onclick="event.stopPropagation(); openPhysicalCardRequest('dependent_${targetId || index}')" class="text-xs font-semibold text-brand-600 hover:underline mt-3">Solicitar carteirinha física</button>`;
+        return `<article class="dependent-card dependent-card-clickable bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4" onclick="openDependentDetails('${targetId || index}')" tabindex="0" role="button" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openDependentDetails('${targetId || index}'); }"><div class="dependent-card-info flex min-w-0 items-center gap-4"><div class="w-12 h-12 rounded-full ${iconBackground} flex-shrink-0 flex items-center justify-center"><i data-lucide="${icon}" class="w-6 h-6 ${iconColor}"></i></div><div class="min-w-0"><p class="font-bold text-gray-900 truncate">${person.name}</p><p class="text-sm text-gray-500 truncate">${person.type} • ${person.relation}</p><p class="text-xs text-gray-500 mt-1">Plano: ${escapeHtml(activePlan || "Nenhum plano contratado")}</p>${!isChild ? `<p class="text-xs text-gray-500 mt-1">Acompanhante: ${person.companion ? "Sim" : "Não"}</p>` : ""}<p class="text-xs text-gray-500 mt-1">${legalText}</p>${cardAction}</div></div><button type="button" onclick="event.stopPropagation(); confirmDelete('dependent', '${targetId}', ${index})" class="dependent-delete-button flex-shrink-0 w-10 h-10 rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 transition flex items-center justify-center" aria-label="Excluir ${person.name}" title="Excluir dependente"><i data-lucide="trash-2" class="w-5 h-5"></i></button></article>`;
     }).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Adicione uma criança ou pessoa idosa para cuidar dela pelo app.</p></div>`;
+    lucide.createIcons();
+}
+
+function openDependentDetails(dependentId) {
+    const dependents = DataService.getUserData("dependents");
+    const dependent = dependents.find((person, index) => String(person.id || index) === String(dependentId));
+    if (!dependent) return;
+    const user = DataService.getCurrentUser();
+    const plan = getSelectedPlan(user) || "Nenhum plano contratado";
+    const fields = [["Nome completo", dependent.name], ["Grau de parentesco", dependent.relation], ["Data de nascimento", dependent.birthdate || dependent.data_nascimento], ["CPF", dependent.cpf], ["Plano", plan], ["Número do beneficiário", dependent.id], ["Status do cadastro", dependent.status || "Cadastrado"], ["Responsável legal", dependent.responsibleName], ["Acompanhante", dependent.companion === undefined ? "" : dependent.companion ? "Sim" : "Não"]].filter(([, value]) => value !== undefined && value !== null && String(value).trim());
+    document.getElementById("dependent-details-subtitle").textContent = dependent.type || "Dependente";
+    document.getElementById("dependent-details-content").innerHTML = fields.map(([label, value]) => `<div class="flex items-start justify-between gap-4 border-b border-gray-100 pb-2 text-sm"><span class="text-gray-500">${label}</span><strong class="text-gray-800 text-right">${escapeHtml(value)}</strong></div>`).join("");
+    document.getElementById("modal-dependent-details").classList.remove("hidden");
     lucide.createIcons();
 }
 
@@ -1328,7 +1894,6 @@ function fillProfile(user) {
     document.getElementById("profile-address").value = user.endereco || "";
     document.getElementById("profile-cpf").value = user.cpf || "";
     document.getElementById("profile-birthdate").value = user.data_nascimento || "";
-    document.getElementById("profile-password").value = "";
     selectProfileIcon(getProfileIcon(user.profileIcon));
 }
 
@@ -1355,7 +1920,13 @@ function setupProfileUi() {
             </div></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-name">Nome completo</label><input id="profile-name" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-email">E-mail</label><input id="profile-email" type="email" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
-            <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-password">Nova senha</label><input id="profile-password" type="password" minlength="6" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none" placeholder="Deixe em branco para manter a atual"></div>
+            <button type="button" onclick="togglePasswordChange()" id="change-password-toggle" class="border border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold px-4 py-3 rounded-xl text-sm transition">Alterar senha</button>
+            <div id="password-change-panel" class="hidden rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-4">
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-current-password">Senha atual</label><input id="profile-current-password" type="password" autocomplete="current-password" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-new-password">Nova senha</label><input id="profile-new-password" type="password" minlength="6" autocomplete="new-password" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-confirm-password">Confirmar nova senha</label><input id="profile-confirm-password" type="password" minlength="6" autocomplete="new-password" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+                <button type="button" onclick="changeProfilePassword()" class="btn-primary text-white font-semibold px-4 py-3 rounded-xl text-sm">Confirmar alteração</button>
+            </div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-phone">Telefone</label><input id="profile-phone" required maxlength="15" inputmode="numeric" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-cpf">CPF</label><input id="profile-cpf" required maxlength="14" inputmode="numeric" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-birthdate">Data de nascimento</label><input id="profile-birthdate" type="date" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
@@ -1429,11 +2000,49 @@ function saveProfile(e) {
     user.cpf = cpf;
     user.data_nascimento = dataNascimento;
     user.profileIcon = document.getElementById("profile-icon").value;
-    const password = document.getElementById("profile-password").value;
-    if (password) user.senha = password;
     DataService.setCurrentUser(user);
     renderDashboard();
     showToast("Perfil atualizado", "success");
+}
+
+function togglePasswordChange() {
+    const panel = document.getElementById("password-change-panel");
+    const button = document.getElementById("change-password-toggle");
+    if (!panel || !button) return;
+    const isHidden = panel.classList.toggle("hidden");
+    button.textContent = isHidden ? "Alterar senha" : "Fechar alteração de senha";
+}
+
+function changeProfilePassword() {
+    const user = DataService.getCurrentUser();
+    const currentPassword = document.getElementById("profile-current-password")?.value || "";
+    const newPassword = document.getElementById("profile-new-password")?.value || "";
+    const confirmation = document.getElementById("profile-confirm-password")?.value || "";
+    if (!currentPassword || !newPassword || !confirmation) {
+        showToast("Preencha os três campos de senha.", "error");
+        return;
+    }
+    if (user.senha && currentPassword !== user.senha) {
+        showToast("A senha atual está incorreta.", "error");
+        return;
+    }
+    if (newPassword.length < 6) {
+        showToast("A nova senha deve ter pelo menos 6 caracteres.", "error");
+        return;
+    }
+    if (newPassword !== confirmation) {
+        showToast("As novas senhas não coincidem.", "error");
+        return;
+    }
+    user.senha = newPassword;
+    DataService.setCurrentUser(user);
+    const panel = document.getElementById("password-change-panel");
+    panel?.classList.add("hidden");
+    document.getElementById("change-password-toggle").textContent = "Alterar senha";
+    document.getElementById("profile-current-password").value = "";
+    document.getElementById("profile-new-password").value = "";
+    document.getElementById("profile-confirm-password").value = "";
+    showToast("Senha alterada com sucesso.", "success");
 }
 
 function openChat(doctor) {
@@ -1452,7 +2061,37 @@ function openChat(doctor) {
 
 function toggleAssistant() {
     if (!DataService.getCurrentUser()) return;
-    document.getElementById("assistant-panel").classList.toggle("hidden");
+    const panel = document.getElementById("assistant-panel");
+    const shouldOpen = panel.classList.contains("hidden");
+    panel.classList.toggle("hidden", !shouldOpen);
+    if (shouldOpen) resetAssistantMode();
+    lucide.createIcons();
+}
+
+function resetAssistantMode() {
+    document.getElementById("assistant-choice")?.classList.remove("hidden");
+    document.getElementById("assistant-messages")?.classList.add("hidden");
+    document.getElementById("assistant-form")?.classList.add("hidden");
+    document.getElementById("support-interface")?.classList.add("hidden");
+}
+
+function selectAssistantMode(mode) {
+    const choice = document.getElementById("assistant-choice");
+    const messages = document.getElementById("assistant-messages");
+    const form = document.getElementById("assistant-form");
+    const support = document.getElementById("support-interface");
+    choice?.classList.add("hidden");
+    if (mode === "human") {
+        messages?.classList.add("hidden");
+        form?.classList.add("hidden");
+        support?.classList.remove("hidden");
+        document.getElementById("support-input")?.focus();
+        return;
+    }
+    support?.classList.add("hidden");
+    messages?.classList.remove("hidden");
+    form?.classList.remove("hidden");
+    document.getElementById("assistant-input")?.focus();
     lucide.createIcons();
 }
 
@@ -1489,15 +2128,140 @@ function hidePasswordRecovery() {
     document.getElementById("login-form").classList.remove("hidden");
 }
 
+function getNetworkDetails(networkName) {
+    return networksDB.find((network) => network.name === networkName) || null;
+}
+
+function detailSection(icon, title, fields, tone = "brand") {
+    const visibleFields = fields.filter((field) => field.value !== undefined && field.value !== null && String(field.value).trim() !== "");
+    if (!visibleFields.length) return "";
+    return `<section class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+        <div class="flex items-center gap-2 mb-3"><i data-lucide="${icon}" class="w-4 h-4 ${tone === "mint" ? "text-mint-600" : "text-brand-600"}"></i><h4 class="text-xs font-bold uppercase tracking-wide text-gray-500">${title}</h4></div>
+        <div class="space-y-2">${visibleFields.map((field) => `<div class="flex items-start justify-between gap-4 text-sm"><span class="text-gray-500">${field.label}</span><span class="text-gray-800 font-semibold text-right">${escapeHtml(field.value)}</span></div>`).join("")}</div>
+    </section>`;
+}
+
+function getAppointmentTeleconsultaAvailability(appointment) {
+    if (!appointment || appointment.type !== "Teleconsulta" || isTeleconsultaSessionEnded(appointment)) return false;
+    if (isTeleconsultaReconnectAvailable(appointment)) return true;
+    const now = new Date();
+    const currentDate = getLocalDateString(now);
+    const currentTime = now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return appointment.date === currentDate && getTimeInMinutes(appointment.time) >= getTimeInMinutes(currentTime) - 10 && getTimeInMinutes(appointment.time) <= getTimeInMinutes(currentTime) + 10;
+}
+
+function canRemoveAppointment(appointment, referenceDate = new Date()) {
+    if (!appointment || ["cancelada", "cancelado", "concluída", "concluido", "concluída", "completed"].includes(String(appointment.status || "").toLowerCase())) return false;
+    if (isTeleconsultaSessionEnded(appointment)) return false;
+    const appointmentDateTime = new Date(`${appointment.date}T${appointment.time}`);
+    return appointmentDateTime > referenceDate;
+}
+
+function openAppointmentDetails(appointmentId) {
+    const appointment = DataService.getAppointments().find((item) => item.id === appointmentId);
+    if (!appointment) return;
+    const network = getNetworkDetails(appointment.network);
+    const status = appointment.status || (isTeleconsultaSessionEnded(appointment) ? "Sessão encerrada" : "Consulta agendada");
+    document.getElementById("appointment-details-subtitle").textContent = `${appointment.doctor || "Profissional não informado"} • ${appointment.specialty || "Especialidade não informada"}`;
+    document.getElementById("appointment-details-content").innerHTML = [
+        detailSection("user", "Profissional", [
+            { label: "Nome", value: appointment.doctor },
+            { label: "Especialidade", value: appointment.specialty },
+            { label: "CRM", value: appointment.crm },
+        ]),
+        detailSection("calendar-days", "Data e horário", [
+            { label: "Data", value: appointment.date ? formatDate(appointment.date) : "" },
+            { label: "Horário", value: appointment.time },
+        ]),
+        detailSection("user", "Beneficiário", [{ label: "Nome", value: appointment.beneficiaryName }]),
+        detailSection("map-pin", "Local / rede", [
+            { label: "Rede", value: appointment.network },
+            { label: "Endereço", value: appointment.address || network?.address },
+            { label: "Telefone", value: appointment.phone || network?.phone },
+            { label: "Funcionamento", value: appointment.hours || network?.hours },
+        ]),
+        detailSection(appointment.type === "Teleconsulta" ? "video" : "building-2", "Tipo de atendimento", [
+            { label: "Modalidade", value: appointment.type },
+            { label: "Informações", value: appointment.teleconsultationInfo },
+        ], "mint"),
+        detailSection("circle-check", "Status", [{ label: "Situação", value: status }], "mint"),
+        detailSection("info", "Informações adicionais", [
+            { label: "Protocolo", value: appointment.protocol || appointment.protocolo },
+            { label: "Agendado em", value: appointment.scheduledAt || appointment.dataAgendamento },
+            { label: "Observações", value: appointment.notes || appointment.observations },
+        ]),
+    ].join("");
+    document.getElementById("appointment-details-actions").innerHTML = `
+        <button type="button" onclick="closeModal('modal-appointment-details')" class="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50 transition">Fechar</button>
+        ${getAppointmentTeleconsultaAvailability(appointment) ? `<button type="button" onclick="closeModal('modal-appointment-details'); openScheduledTeleconsulta('${appointment.id}')" class="flex-1 btn-primary text-white font-semibold py-3 rounded-xl text-sm flex items-center justify-center gap-2"><i data-lucide="video" class="w-4 h-4"></i>Entrar na teleconsulta</button>` : ""}
+        ${canRemoveAppointment(appointment) ? `<button type="button" onclick="closeModal('modal-appointment-details'); confirmDelete('appointment','${appointment.id}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm">Cancelar consulta</button>` : ""}`;
+    document.getElementById("modal-appointment-details").classList.remove("hidden");
+    lucide.createIcons();
+}
+
+function openExamDetails(examId) {
+    const exam = DataService.getExams().find((item) => item.id === examId);
+    if (!exam) return;
+    const network = getNetworkDetails(exam.network);
+    const status = exam.status || "Exame agendado";
+    document.getElementById("exam-details-subtitle").textContent = exam.examType || "Exame";
+    document.getElementById("exam-details-content").innerHTML = [
+        detailSection("file-text", "Exame", [{ label: "Nome", value: exam.examType }], "mint"),
+        detailSection("calendar-days", "Data e horário", [
+            { label: "Data", value: exam.date ? formatDate(exam.date) : "" },
+            { label: "Horário", value: exam.time },
+        ]),
+        detailSection("user", "Beneficiário", [{ label: "Nome", value: exam.beneficiaryName }]),
+        detailSection("map-pin", "Local", [
+            { label: "Rede", value: exam.network },
+            { label: "Endereço", value: exam.address || network?.address },
+            { label: "Telefone", value: exam.phone || network?.phone },
+            { label: "Funcionamento", value: exam.hours || network?.hours },
+        ]),
+        detailSection("circle-check", "Status", [{ label: "Situação", value: status }], "mint"),
+        detailSection("info", "Informações adicionais", [
+            { label: "Protocolo", value: exam.protocol || exam.protocolo },
+            { label: "Agendado em", value: exam.scheduledAt || exam.dataAgendamento },
+            { label: "Observações", value: exam.notes || exam.observations },
+        ]),
+    ].join("");
+    document.getElementById("exam-details-actions").innerHTML = `
+        <button type="button" onclick="closeModal('modal-exam-details')" class="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50 transition">Fechar</button>
+        ${canRemoveAppointment(exam) ? `<button type="button" onclick="closeModal('modal-exam-details'); confirmDelete('exam','${exam.id}')" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-xl text-sm">Cancelar exame</button>` : ""}`;
+    document.getElementById("modal-exam-details").classList.remove("hidden");
+    lucide.createIcons();
+}
+
 function renderAppointments(appointments) {
     const container = document.getElementById("appointments-list");
-    const orderedAppointments = [...appointments].sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
+    const now = new Date();
+    const activeAppointments = appointments.filter((appointment) => isPendingSchedule(appointment, now));
+    const completedAppointments = appointments.filter((appointment) => isCompletedSchedule(appointment, now));
+    renderAppointmentCards(activeAppointments, container, "Nenhuma consulta agendada.");
+    renderAppointmentCards(completedAppointments, document.getElementById("appointments-history-list"), "Nenhuma consulta concluída ainda.");
+}
 
+function isCompletedSchedule(item, referenceDate = new Date()) {
+    const status = String(item?.status || "").toLowerCase();
+    if (!item || ["cancelada", "cancelado"].includes(status)) return false;
+    if (["concluída", "concluida", "concluído", "concluido", "completed"].includes(status)) return true;
+    return new Date(`${item.date}T${item.time || "00:00"}`) < referenceDate;
+}
+
+function isPendingSchedule(item, referenceDate = new Date()) {
+    const status = String(item?.status || "").toLowerCase();
+    if (!item || ["cancelada", "cancelado"].includes(status)) return false;
+    return !isCompletedSchedule(item, referenceDate);
+}
+
+function renderAppointmentCards(appointments, container, emptyMessage) {
+    if (!container) return;
+    const orderedAppointments = [...appointments].sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     if (!orderedAppointments.length) {
         container.innerHTML = `
             <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center">
                 <i data-lucide="calendar" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
-                <p class="text-gray-400">Nenhuma consulta agendada</p>
+                <p class="text-gray-400">${emptyMessage}</p>
             </div>`;
         lucide.createIcons();
         return;
@@ -1511,13 +2275,14 @@ function renderAppointments(appointments) {
         .map((a) => {
             const isTele = a.type === "Teleconsulta";
             const isSessionEnded = isTeleconsultaSessionEnded(a);
+            const canRemove = canRemoveAppointment(a, now);
             const isCurrentTeleconsulta = isTele && !isSessionEnded && a.date === currentDate && a.time === currentTime;
             const isWithinTolerance = isTele && !isSessionEnded && a.date === currentDate && getTimeInMinutes(a.time) >= getTimeInMinutes(currentTime) - 10 && getTimeInMinutes(a.time) <= getTimeInMinutes(currentTime) + 10;
             const canStartCall = isTele && !isSessionEnded && isWithinTolerance;
             const beneficiaryLabel = a.beneficiaryName ? ` • ${a.beneficiaryName}` : "";
 
             return `
-                <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between card-hover">
+                <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between card-hover appointment-card-clickable" onclick="openAppointmentDetails('${a.id}')" tabindex="0" role="button" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openAppointmentDetails('${a.id}'); }">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl ${isTele ? "bg-purple-100" : "bg-brand-100"} flex items-center justify-center">
                             <i data-lucide="${isTele ? "video" : "stethoscope"}" class="w-6 h-6 ${isTele ? "text-purple-600" : "text-brand-600"}"></i>
@@ -1530,13 +2295,13 @@ function renderAppointments(appointments) {
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${canStartCall ? `<button onclick="openScheduledTeleconsulta('${a.id}')" class="btn-primary text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2">
+                        ${canStartCall ? `<button onclick="event.stopPropagation(); openScheduledTeleconsulta('${a.id}')" class="btn-primary text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2">
                             <i data-lucide="video" class="w-4 h-4"></i>
                             Iniciar chamada
                         </button>` : ""}
-                        <button onclick="confirmDelete('appointment','${a.id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-400 hover:text-red-500 transition">
+                        ${canRemove ? `<button onclick="event.stopPropagation(); confirmDelete('appointment','${a.id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-400 hover:text-red-500 transition" aria-label="Cancelar consulta">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
-                        </button>
+                        </button>` : ""}
                     </div>
                 </div>`;
         })
@@ -1544,15 +2309,31 @@ function renderAppointments(appointments) {
     lucide.createIcons();
 }
 
+function toggleAppointmentHistory() {
+    const history = document.getElementById("appointments-history");
+    const button = document.getElementById("appointment-history-toggle");
+    if (!history || !button) return;
+    const isHidden = history.classList.toggle("hidden");
+    button.textContent = isHidden ? "Histórico de consultas" : "Ocultar histórico";
+}
+
 function renderExams(exams) {
     const container = document.getElementById("exams-list");
-    const orderedExams = [...exams].sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`));
+    const now = new Date();
+    const activeExams = exams.filter((exam) => !isCompletedSchedule(exam, now));
+    const completedExams = exams.filter((exam) => isCompletedSchedule(exam, now));
+    renderExamCards(activeExams, container, "Nenhum exame agendado.");
+    renderExamCards(completedExams, document.getElementById("exams-history-list"), "Nenhum exame concluído ainda.");
+}
 
+function renderExamCards(exams, container, emptyMessage) {
+    if (!container) return;
+    const orderedExams = [...exams].sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`));
     if (!orderedExams.length) {
         container.innerHTML = `
             <div class="bg-white rounded-2xl border border-gray-100 p-8 text-center">
                 <i data-lucide="file-text" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
-                <p class="text-gray-400">Nenhum exame agendado</p>
+                <p class="text-gray-400">${emptyMessage}</p>
             </div>`;
         lucide.createIcons();
         return;
@@ -1561,7 +2342,7 @@ function renderExams(exams) {
     container.innerHTML = orderedExams
         .map(
             (e) => `
-                <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between card-hover">
+                <div class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between card-hover appointment-card-clickable" onclick="openExamDetails('${e.id}')" tabindex="0" role="button" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openExamDetails('${e.id}'); }">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl bg-mint-100 flex items-center justify-center">
                             <i data-lucide="file-text" class="w-6 h-6 text-mint-600"></i>
@@ -1573,28 +2354,37 @@ function renderExams(exams) {
                             ${e.notes ? `<p class="text-xs text-gray-400">${e.notes}</p>` : ""}
                         </div>
                     </div>
-                    <button onclick="confirmDelete('exam','${e.id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-400 hover:text-red-500 transition">
+                    ${canRemoveAppointment(e) ? `<button onclick="event.stopPropagation(); confirmDelete('exam','${e.id}')" class="p-2 rounded-xl hover:bg-red-50 text-red-400 hover:text-red-500 transition" aria-label="Cancelar exame">
                         <i data-lucide="trash-2" class="w-5 h-5"></i>
-                    </button>
+                    </button>` : ""}
                 </div>`
         )
         .join("");
     lucide.createIcons();
 }
 
+function toggleExamHistory() {
+    const history = document.getElementById("exams-history");
+    const button = document.getElementById("exam-history-toggle");
+    if (!history || !button) return;
+    const isHidden = history.classList.toggle("hidden");
+    button.textContent = isHidden ? "Histórico de exames" : "Ocultar histórico";
+}
+
 /** Junta consultas + exames num só feed, ordenado por data, mostrando os 5 próximos. */
 function renderRecentItems(appointments, exams) {
     const container = document.getElementById("recent-items");
+    const now = new Date();
 
     const todosItens = [
-        ...appointments.map((a) => ({
-            itemType: "consulta",
+        ...appointments.filter((a) => isPendingSchedule(a, now)).map((a) => ({
+            itemType: a.type === "Teleconsulta" ? "teleconsulta" : "consulta",
             label: `${a.doctor} - ${a.specialty}`,
             dateStr: `${formatDate(a.date)} ${a.time}`,
             date: a.date,
             time: a.time,
         })),
-        ...exams.map((e) => ({
+        ...exams.filter((e) => isPendingSchedule(e, now)).map((e) => ({
             itemType: "exame",
             label: e.examType,
             dateStr: `${formatDate(e.date)} ${e.time}`,
@@ -1616,15 +2406,16 @@ function renderRecentItems(appointments, exams) {
     container.innerHTML = todosItens
         .map((i) => {
             const isConsulta = i.itemType === "consulta";
+            const isTeleconsulta = i.itemType === "teleconsulta";
             return `
                 <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition">
-                    <div class="w-2 h-2 rounded-full ${isConsulta ? "bg-brand-500" : "bg-mint-500"}"></div>
+                    <div class="w-2 h-2 rounded-full ${isConsulta ? "bg-brand-500" : isTeleconsulta ? "bg-purple-500" : "bg-mint-500"}"></div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-800">${i.label}</p>
                         <p class="text-xs text-gray-400">${i.dateStr}</p>
                     </div>
-                    <span class="text-xs font-medium px-2 py-1 rounded-full ${isConsulta ? "bg-brand-50 text-brand-600" : "bg-mint-50 text-mint-600"}">
-                        ${isConsulta ? "Consulta" : "Exame"}
+                    <span class="text-xs font-medium px-2 py-1 rounded-full ${isConsulta ? "bg-brand-50 text-brand-600" : isTeleconsulta ? "bg-purple-50 text-purple-600" : "bg-mint-50 text-mint-600"}">
+                        ${isConsulta ? "Consulta" : isTeleconsulta ? "Teleconsulta" : "Exame"}
                     </span>
                 </div>`;
         })
@@ -1647,9 +2438,42 @@ function getTimeInMinutes(timeValue) {
     return hours * 60 + minutes;
 }
 
-function getAvailableTimeSlots(dateValue, slots) {
-    const dayClosingTime = getTimeInMinutes(clinicClosingTime);
-    const filteredByBusinessHours = slots.filter((slot) => getTimeInMinutes(slot) <= dayClosingTime);
+function getNetworkOperatingWindow(networkName, dateValue) {
+    const network = networksDB.find((item) => item.name === networkName);
+    if (!network || !network.hours || /24 horas/i.test(network.hours)) return null;
+
+    const hoursMatch = network.hours.match(/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/);
+    if (!hoursMatch) return null;
+
+    const date = new Date(`${dateValue}T12:00:00`);
+    const day = date.getDay();
+    const weekdayRanges = network.hours.toLowerCase();
+    const isWeekday = day >= 1 && day <= 5;
+    const isSaturday = day === 6;
+    const isSunday = day === 0;
+    if (isSunday && !weekdayRanges.includes("todos os dias")) return { closed: true };
+    if (isSaturday && weekdayRanges.includes("seg-sex")) return { closed: true };
+    if (isWeekday && weekdayRanges.includes("seg-sab") === false && weekdayRanges.includes("seg-sex") === false && !weekdayRanges.includes("todos os dias")) return { closed: true };
+
+    return {
+        opening: getTimeInMinutes(hoursMatch[1]),
+        closing: getTimeInMinutes(hoursMatch[2]),
+    };
+}
+
+function getSelectedScheduleNetwork(type) {
+    return document.getElementById(type === "appointment" ? "apt-network" : "exam-network")?.value || "";
+}
+
+function getAvailableTimeSlots(dateValue, slots, networkName = "") {
+    const networkWindow = getNetworkOperatingWindow(networkName, dateValue);
+    if (networkWindow?.closed) return [];
+    const openingTime = networkWindow?.opening ?? getTimeInMinutes("08:00");
+    const closingTime = networkWindow?.closing ?? getTimeInMinutes(clinicClosingTime);
+    const filteredByBusinessHours = slots.filter((slot) => {
+        const minutes = getTimeInMinutes(slot);
+        return minutes >= openingTime && minutes <= closingTime;
+    });
 
     const today = getLocalDateString();
     if (dateValue !== today) return filteredByBusinessHours;
@@ -1664,7 +2488,7 @@ function updateAppointmentTimeOptions() {
     const timeSelect = document.getElementById("apt-time");
     if (!dateInput || !timeSelect) return;
 
-    const filtered = getAvailableTimeSlots(dateInput.value, appointmentTimeSlots);
+    const filtered = getAvailableTimeSlots(dateInput.value, appointmentTimeSlots, getSelectedScheduleNetwork("appointment"));
     timeSelect.innerHTML = filtered.length
         ? `<option value="">Horário</option>${filtered.map((slot) => `<option value="${slot}">${slot}</option>`).join("")}`
         : `<option value="">Nenhum horário disponível</option>`;
@@ -1675,7 +2499,7 @@ function updateExamTimeOptions() {
     const timeSelect = document.getElementById("exam-time");
     if (!dateInput || !timeSelect) return;
 
-    const filtered = getAvailableTimeSlots(dateInput.value, examTimeSlots);
+    const filtered = getAvailableTimeSlots(dateInput.value, examTimeSlots, getSelectedScheduleNetwork("exam"));
     timeSelect.innerHTML = filtered.length
         ? `<option value="">Horário</option>${filtered.map((slot) => `<option value="${slot}">${slot}</option>`).join("")}`
         : `<option value="">Nenhum horário disponível</option>`;
@@ -1715,6 +2539,38 @@ document.getElementById("apt-type")?.addEventListener("change", function () {
 
 document.getElementById("apt-date").addEventListener("change", updateAppointmentTimeOptions);
 document.getElementById("exam-date").addEventListener("change", updateExamTimeOptions);
+document.getElementById("apt-network")?.addEventListener("change", updateAppointmentTimeOptions);
+document.getElementById("exam-network")?.addEventListener("change", updateExamTimeOptions);
+
+function validateScheduleDateAndTime(date, time, networkName, label) {
+    const today = getLocalDateString();
+    if (!date || !time) {
+        showToast(`Selecione uma data e um horário válidos para ${label}.`, "error");
+        return false;
+    }
+    if (date < today) {
+        showToast(`A data de ${label} deve ser hoje ou posterior.`, "error");
+        return false;
+    }
+
+    const selectedMinutes = getTimeInMinutes(time);
+    const now = new Date();
+    if (date === today && selectedMinutes <= now.getHours() * 60 + now.getMinutes()) {
+        showToast(`Escolha um horário futuro para ${label}.`, "error");
+        return false;
+    }
+
+    const networkWindow = getNetworkOperatingWindow(networkName, date);
+    if (networkWindow?.closed) {
+        showToast("A rede selecionada não funciona nessa data.", "error");
+        return false;
+    }
+    if (networkWindow && (selectedMinutes < networkWindow.opening || selectedMinutes > networkWindow.closing)) {
+        showToast(`Escolha um horário dentro do funcionamento da rede: ${networkWindow.opening === networkWindow.closing ? "24 horas" : `${String(Math.floor(networkWindow.opening / 60)).padStart(2, "0")}:${String(networkWindow.opening % 60).padStart(2, "0")} às ${String(Math.floor(networkWindow.closing / 60)).padStart(2, "0")}:${String(networkWindow.closing % 60).padStart(2, "0")}`}.`, "error");
+        return false;
+    }
+    return true;
+}
 
 document.getElementById("appointment-form").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -1730,22 +2586,8 @@ document.getElementById("appointment-form").addEventListener("submit", function 
 
     const date = document.getElementById("apt-date").value;
     const time = document.getElementById("apt-time").value;
-    const today = getLocalDateString();
-    const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-    const closingMinutes = getTimeInMinutes(clinicClosingTime);
-
-    if (date === today && time && getTimeInMinutes(time) <= nowMinutes) {
-        showToast("Escolha um horário futuro para a consulta.", "error");
-        return;
-    }
-    if (time && getTimeInMinutes(time) > closingMinutes) {
-        showToast("O atendimento funciona até às 19:00.", "error");
-        return;
-    }
-    if (!date || !time) {
-        showToast("Selecione uma data e um horário válidos.", "error");
-        return;
-    }
+    const selectedNetwork = document.getElementById("apt-network")?.value || "";
+    if (!validateScheduleDateAndTime(date, time, selectedNetwork, "a consulta")) return;
 
     const user = DataService.getCurrentUser();
     const novaConsulta = {
@@ -1758,7 +2600,7 @@ document.getElementById("appointment-form").addEventListener("submit", function 
         date,
         time,
         type: document.getElementById("apt-type").value,
-        network: document.getElementById("apt-network")?.value || "",
+        network: selectedNetwork,
     };
 
     const todasConsultas = DataService.getAppointments();
@@ -1807,7 +2649,7 @@ document.getElementById("chat-form").addEventListener("submit", function (e) {
 });
 
 function escapeHtml(value) {
-    return value.replace(/[&<>'"]/g, (character) => ({
+    return String(value ?? "").replace(/[&<>'"]/g, (character) => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -1826,27 +2668,34 @@ function getLocalAssistantReply(text) {
     if (question.includes("hospital") || question.includes("rede") || question.includes("distancia")) return "Na aba Rede próxima, escolha o raio de busca. A distância é calculada conforme o endereço cadastrado no perfil."
     if (question.includes("contato") || question.includes("chat") || question.includes("conversa")) return "Em Contatos ficam os médicos que já atenderam você. Clique em Falar para abrir uma conversa individual com o médico."
     if (question.includes("dependente") || question.includes("crianca") || question.includes("adulto") || question.includes("idoso")) return "Na aba Dependentes, clique em Adicionar pessoa e escolha Pediatria, Adulto ou Geriatria. Preencha os dados e confirme."
+    if (question.includes("carteirinha") || question.includes("cartao")) return "Na aba Carteirinha você pode consultar seus dados digitais e solicitar uma versão física para entrega.";
     if (question.includes("perfil") || question.includes("endereco")) return "Na aba Meu perfil, você pode atualizar seus dados e o endereço. A rede próxima usa esse endereço para calcular as distâncias."
     return "Ainda não encontrei essa dúvida nas perguntas programadas. Posso ajudar com planos, consultas, exames, teleconsultas, rede próxima, contatos ou dependentes.";
 }
 
 function openSupportInterface() {
-    document.getElementById("assistant-messages").classList.add("hidden");
-    document.getElementById("assistant-form").classList.add("hidden");
-    document.getElementById("support-interface").classList.remove("hidden");
-    document.getElementById("support-input").focus();
+    selectAssistantMode("human");
 }
 
 function closeSupportInterface() {
-    document.getElementById("support-interface").classList.add("hidden");
-    document.getElementById("assistant-messages").classList.remove("hidden");
-    document.getElementById("assistant-form").classList.remove("hidden");
-    document.getElementById("assistant-input").focus();
+    selectAssistantMode("bot");
+}
+
+function showAssistantMoreOptions() {
+    const messages = document.getElementById("assistant-messages");
+    const oldOptions = messages.querySelector(".assistant-more-options");
+    if (oldOptions) oldOptions.remove();
+    messages.insertAdjacentHTML("beforeend", `<p class="bg-brand-50 text-gray-700 rounded-xl p-3 text-sm">Claro! Sobre qual área você precisa de ajuda?</p><div class="assistant-suggestions assistant-more-options"><button type="button" class="assistant-suggestion" onclick="sendAssistantQuestion('Quais planos estão disponíveis?')">Planos</button><button type="button" class="assistant-suggestion" onclick="sendAssistantQuestion('Como encontro uma rede próxima?')">Rede próxima</button><button type="button" class="assistant-suggestion" onclick="sendAssistantQuestion('Como cadastro um dependente?')">Dependentes</button><button type="button" class="assistant-suggestion" onclick="sendAssistantQuestion('Como acesso minha carteirinha?')">Carteirinha</button><button type="button" class="assistant-suggestion" onclick="sendAssistantQuestion('Como atualizo meu perfil?')">Meu perfil</button></div>`);
+    messages.scrollTop = messages.scrollHeight;
 }
 
 function sendAssistantQuestion(text) {
     const messages = document.getElementById("assistant-messages");
     if (!text) return;
+    if (text === "__OUTRAS_OPCOES__") {
+        showAssistantMoreOptions();
+        return;
+    }
     if (text === "SUPORTE") {
         openSupportInterface();
         return;
@@ -1881,6 +2730,10 @@ document.getElementById("assistant-form").addEventListener("submit", function (e
 
 document.querySelectorAll(".assistant-suggestion").forEach((button) => {
     button.addEventListener("click", function () {
+        if (this.dataset.assistantAction === "more") {
+            showAssistantMoreOptions();
+            return;
+        }
         sendAssistantQuestion(this.dataset.assistantQuestion);
         document.getElementById("assistant-input").focus();
     });
@@ -1921,14 +2774,19 @@ document.getElementById("dependent-responsible-cpf").addEventListener("input", f
 
 // ==================== 8. AGENDAMENTO DE EXAMES ====================
 const examInstructions = {
-    "Hemograma Completo": "Preparo: geralmente não é necessário jejum. Confirme a orientação do laboratório.",
-    "Glicemia": "Preparo: o jejum pode ser solicitado. Siga o período informado pelo laboratório ou profissional de saúde.",
-    "Colesterol Total": "Preparo: o jejum depende da solicitação e do perfil lipídico. Confirme a orientação do laboratório.",
-    "Eletrocardiograma": "Preparo: geralmente não exige preparo específico. Use roupas confortáveis e siga a orientação do serviço.",
-    "Raio-X": "Preparo: varia conforme a região examinada. Informe possibilidade de gravidez e siga a orientação do serviço.",
-    "Ultrassonografia": "Preparo: varia conforme a região examinada e pode incluir cuidados específicos. Confirme a orientação do serviço.",
-    "Ressonância Magnética": "Preparo: informe implantes, objetos metálicos e possibilidade de gravidez. Siga as instruções do serviço, especialmente se houver contraste.",
-    "Tomografia": "Preparo: varia conforme a região e o uso de contraste. Informe alergias e condições de saúde e siga a orientação do serviço.",
+    "Hemograma Completo": "Jejum não obrigatório. Evite esforço físico intenso antes da coleta e confirme a orientação do laboratório.",
+    "Glicemia": "Necessário jejum de 8 horas, salvo orientação médica diferente. Água está liberada.",
+    "Colesterol Total": "Preferencialmente jejum de 8 a 12 horas quando solicitado junto ao perfil lipídico.",
+    "Eletrocardiograma": "Não exige jejum. Evite cremes ou óleos no peito e use roupas confortáveis.",
+    "Raio-X": "Não exige jejum. Retire objetos metálicos e informe ao serviço qualquer possibilidade de gravidez.",
+    "Ultrassonografia": "O preparo depende da região. Para abdômen, faça jejum de 6 a 8 horas e beba água conforme orientação.",
+    "Ressonância Magnética": "Informe implantes, marca-passo, metais no corpo e possibilidade de gravidez. Pode exigir jejum se houver contraste.",
+    "Tomografia": "Pode exigir jejum de 4 horas quando houver contraste. Informe alergias, diabetes e problemas renais.",
+    "Exame de Urina": "Higienize a região e colete a primeira urina da manhã em frasco apropriado, salvo orientação diferente.",
+    "Ecocardiograma": "Não exige jejum. Use roupa confortável e leve exames cardiológicos anteriores, se disponíveis.",
+    "Exame de Sangue": "O preparo varia conforme os marcadores solicitados; confirme se é necessário jejum de 8 a 12 horas.",
+    "Exame de Tireoide": "Geralmente não exige jejum. Informe medicamentos em uso, especialmente hormônios da tireoide.",
+    "Exame de Colesterol e Triglicerídeos": "Jejum de 8 a 12 horas pode ser solicitado. Evite álcool e refeições muito gordurosas no dia anterior.",
 };
 
 function updateExamInstructions() {
@@ -1937,7 +2795,7 @@ function updateExamInstructions() {
     const status = document.getElementById("exam-notes-status");
     const instruction = examInstructions[examType] || "";
     notes.value = instruction;
-    status.textContent = "Orientação informativa. Confirme o preparo específico com o laboratório ou serviço de diagnóstico.";
+    status.textContent = instruction ? "Orientação informativa. Confirme o preparo específico com o laboratório ou serviço de diagnóstico." : "Selecione um exame para ver a orientação de preparo.";
 }
 
 function openExamModal() {
@@ -1968,22 +2826,8 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
 
     const date = document.getElementById("exam-date").value;
     const time = document.getElementById("exam-time").value;
-    const today = getLocalDateString();
-    const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
-    const closingMinutes = getTimeInMinutes(clinicClosingTime);
-
-    if (date === today && time && getTimeInMinutes(time) <= nowMinutes) {
-        showToast("Escolha um horário futuro para o exame.", "error");
-        return;
-    }
-    if (time && getTimeInMinutes(time) > closingMinutes) {
-        showToast("O atendimento funciona até às 19:00.", "error");
-        return;
-    }
-    if (!date || !time) {
-        showToast("Selecione uma data e um horário válidos.", "error");
-        return;
-    }
+    const selectedNetwork = document.getElementById("exam-network")?.value || "";
+    if (!validateScheduleDateAndTime(date, time, selectedNetwork, "o exame")) return;
 
     const user = DataService.getCurrentUser();
     const novoExame = {
@@ -1994,7 +2838,7 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
         examType: document.getElementById("exam-type").value,
         date,
         time,
-        network: document.getElementById("exam-network")?.value || "",
+        network: selectedNetwork,
         notes: document.getElementById("exam-notes").value,
     };
 
@@ -2013,17 +2857,31 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
 
 // ==================== 9. CANCELAMENTO (MODAL DE CONFIRMAÇÃO) ====================
 let deleteTarget = null;
+let favoriteReplacementTarget = "";
 
 /** Abre o modal de confirmação, guardando o que será excluído ao confirmar. */
 function confirmDelete(type, id, index) {
     deleteTarget = { type, id, index };
-    document.getElementById("confirm-title").textContent = type === "dependent" ? "Excluir dependente?" : "Cancelar agendamento?";
-    document.getElementById("confirm-description").textContent = type === "dependent" ? "Esta pessoa será removida da sua lista de dependentes." : "Esta ação não pode ser desfeita.";
-    document.getElementById("confirm-action").textContent = type === "dependent" ? "Excluir" : "Confirmar";
+    favoriteReplacementTarget = "";
+    const isPhysicalCard = type === "physical-card";
+    document.getElementById("confirm-title").textContent = isPhysicalCard ? "Cancelar solicitação?" : type === "dependent" ? "Excluir dependente?" : "Cancelar agendamento?";
+    document.getElementById("confirm-description").textContent = isPhysicalCard ? "Tem certeza que deseja cancelar a solicitação da carteirinha física?" : type === "dependent" ? "Esta pessoa será removida da sua lista de dependentes." : "Esta ação não pode ser desfeita.";
+    document.getElementById("confirm-action").textContent = isPhysicalCard ? "Confirmar cancelamento" : type === "dependent" ? "Excluir" : "Confirmar";
+    document.getElementById("confirm-cancel-btn").textContent = "Voltar";
     document.getElementById("modal-confirm").classList.remove("hidden");
 }
 
+function cancelConfirmAction() {
+    deleteTarget = null;
+    favoriteReplacementTarget = "";
+    closeModal("modal-confirm");
+}
+
 document.getElementById("confirm-delete-btn").addEventListener("click", function () {
+    if (favoriteReplacementTarget) {
+        setFavoriteNetwork(favoriteReplacementTarget);
+        return;
+    }
     if (!deleteTarget) return;
     const deletedType = deleteTarget.type;
 
@@ -2033,6 +2891,15 @@ document.getElementById("confirm-delete-btn").addEventListener("click", function
     } else if (deleteTarget.type === "exam") {
         const restantes = DataService.getExams().filter((e) => e.id !== deleteTarget.id);
         DataService.saveExams(restantes);
+    } else if (deleteTarget.type === "physical-card") {
+        DataService.clearPhysicalCardRequestFor(deleteTarget.id || "titular");
+        deleteTarget = null;
+        closeModal("modal-confirm");
+        renderPhysicalCardStatus();
+        renderDependents();
+        renderDependentPhysicalCards();
+        showToast("Solicitação cancelada", "success");
+        return;
     } else {
         const dependents = DataService.getUserData("dependents");
         const restantes = deleteTarget.id
@@ -2050,8 +2917,154 @@ document.getElementById("confirm-delete-btn").addEventListener("click", function
 
 // ==================== 10. TELECONSULTA SIMULADA ====================
 let teleTimer = null;
+let teleReconnectTimer = null;
 let teleSeconds = 0;
 let activeTeleconsultaId = null;
+let teleMediaStream = null;
+let teleMicrophoneEnabled = true;
+let teleCameraEnabled = true;
+
+function resetTeleconsultaMediaUi() {
+    const preparation = document.getElementById("tele-preparation");
+    const callView = document.getElementById("tele-call-view");
+    const message = document.getElementById("tele-media-message");
+    const retry = document.getElementById("tele-retry");
+    const cameraOff = document.getElementById("tele-camera-off");
+    preparation?.classList.remove("hidden");
+    callView?.classList.add("hidden");
+    message?.classList.add("hidden");
+    retry?.classList.add("hidden");
+    cameraOff?.classList.add("hidden");
+    teleMicrophoneEnabled = true;
+    teleCameraEnabled = true;
+    updateTeleconsultaControlButtons();
+}
+
+function updateTeleconsultaPreparationInfo(appointment) {
+    const info = document.getElementById("tele-preparation-info");
+    if (!info || !appointment) return;
+    info.innerHTML = `<strong>${escapeHtml(DataService.getCurrentUser()?.nome || appointment.beneficiaryName || "Usuário")}</strong><br>${escapeHtml(appointment.doctor || "Profissional") }<br>${escapeHtml(appointment.specialty || "Especialidade")}<br>${appointment.date ? formatDate(appointment.date) : ""} às ${escapeHtml(appointment.time || "")}`;
+}
+
+function beginTeleconsultaSession(appointment) {
+    document.getElementById("tele-specialty").value = appointment.specialty || "";
+    document.getElementById("tele-doctor-name").textContent = appointment.doctor || "Dr(a). Médico";
+    document.getElementById("tele-doctor-spec").textContent = appointment.specialty || "Especialidade";
+    updateTeleconsultaPreparationInfo(appointment);
+    resetTeleconsultaMediaUi();
+    showPage("page-teleconsulta");
+    startTeleconsultaTimer();
+    requestTeleconsultaMedia();
+}
+
+function startTeleconsultaTimer() {
+    if (teleTimer) clearInterval(teleTimer);
+    teleSeconds = 0;
+    document.getElementById("tele-timer").textContent = "00:00";
+    teleTimer = setInterval(() => {
+        teleSeconds++;
+        const minutos = String(Math.floor(teleSeconds / 60)).padStart(2, "0");
+        const segundos = String(teleSeconds % 60).padStart(2, "0");
+        document.getElementById("tele-timer").textContent = `${minutos}:${segundos}`;
+    }, 1000);
+}
+
+function updateTeleconsultaControlButtons() {
+    const micButton = document.getElementById("btn-mic");
+    const camButton = document.getElementById("btn-cam");
+    if (!micButton || !camButton) return;
+    micButton.classList.toggle("is-muted", !teleMicrophoneEnabled);
+    camButton.classList.toggle("is-camera-off", !teleCameraEnabled);
+    micButton.setAttribute("aria-label", teleMicrophoneEnabled ? "Desligar microfone" : "Ligar microfone");
+    micButton.title = teleMicrophoneEnabled ? "Desligar microfone" : "Ligar microfone";
+    camButton.setAttribute("aria-label", teleCameraEnabled ? "Desligar câmera" : "Ligar câmera");
+    camButton.title = teleCameraEnabled ? "Desligar câmera" : "Ligar câmera";
+    micButton.innerHTML = `<i data-lucide="${teleMicrophoneEnabled ? "mic" : "mic-off"}" class="w-5 h-5 text-white"></i>`;
+    camButton.innerHTML = `<i data-lucide="${teleCameraEnabled ? "camera" : "video-off"}" class="w-5 h-5 text-white"></i>`;
+    const micStatus = document.getElementById("tele-mic-status");
+    if (micStatus) {
+        micStatus.innerHTML = `<i data-lucide="${teleMicrophoneEnabled ? "mic" : "mic-off"}" class="w-4 h-4"></i> ${teleMicrophoneEnabled ? "Microfone ativo" : "Microfone desligado"}`;
+        micStatus.classList.toggle("is-muted", !teleMicrophoneEnabled);
+    }
+    lucide.createIcons();
+}
+
+function showTeleconsultaMediaError(message) {
+    const preparation = document.getElementById("tele-preparation");
+    const mediaMessage = document.getElementById("tele-media-message");
+    const retry = document.getElementById("tele-retry");
+    preparation?.classList.remove("hidden");
+    document.getElementById("tele-call-view")?.classList.add("hidden");
+    if (mediaMessage) {
+        mediaMessage.textContent = message;
+        mediaMessage.classList.remove("hidden");
+    }
+    retry?.classList.remove("hidden");
+}
+
+function showTeleconsultaDemoWithoutCamera(message) {
+    const mediaMessage = document.getElementById("tele-media-message");
+    const video = document.getElementById("tele-local-video");
+    document.getElementById("tele-preparation")?.classList.add("hidden");
+    document.getElementById("tele-call-view")?.classList.remove("hidden");
+    document.getElementById("tele-camera-off")?.classList.remove("hidden");
+    if (video) video.srcObject = null;
+    teleCameraEnabled = false;
+    if (mediaMessage) {
+        mediaMessage.textContent = message;
+        mediaMessage.classList.remove("hidden");
+    }
+    updateTeleconsultaControlButtons();
+    showToast(message, "error");
+}
+
+async function requestTeleconsultaMedia() {
+    const mediaMessage = document.getElementById("tele-media-message");
+    const retry = document.getElementById("tele-retry");
+    mediaMessage?.classList.add("hidden");
+    retry?.classList.add("hidden");
+    if (!navigator.mediaDevices?.getUserMedia) {
+        showTeleconsultaMediaError("Não foi possível acessar sua câmera ou microfone. Verifique as permissões do navegador para continuar.");
+        return;
+    }
+    stopTeleconsultaMedia();
+    try {
+        teleMediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const video = document.getElementById("tele-local-video");
+        video.srcObject = teleMediaStream;
+        document.getElementById("tele-preparation")?.classList.add("hidden");
+        document.getElementById("tele-call-view")?.classList.remove("hidden");
+        updateTeleconsultaControlButtons();
+    } catch (error) {
+        if (error?.name === "NotFoundError") {
+            showTeleconsultaDemoWithoutCamera("Câmera não disponível. Você pode continuar utilizando a demonstração.");
+            return;
+        }
+        showTeleconsultaMediaError("Não foi possível acessar sua câmera ou microfone. Verifique as permissões do navegador para continuar.");
+    }
+}
+
+function stopTeleconsultaMedia() {
+    if (teleMediaStream) {
+        teleMediaStream.getTracks().forEach((track) => track.stop());
+        teleMediaStream = null;
+    }
+    const video = document.getElementById("tele-local-video");
+    if (video) video.srcObject = null;
+}
+
+function toggleTeleconsultaMicrophone() {
+    teleMicrophoneEnabled = !teleMicrophoneEnabled;
+    teleMediaStream?.getAudioTracks().forEach((track) => { track.enabled = teleMicrophoneEnabled; });
+    updateTeleconsultaControlButtons();
+}
+
+function toggleTeleconsultaCamera() {
+    teleCameraEnabled = !teleCameraEnabled;
+    teleMediaStream?.getVideoTracks().forEach((track) => { track.enabled = teleCameraEnabled; });
+    document.getElementById("tele-camera-off")?.classList.toggle("hidden", teleCameraEnabled);
+    updateTeleconsultaControlButtons();
+}
 
 function startTeleconsulta() {
     if (!requirePlanAccess("Teleconsulta")) return;
@@ -2091,51 +3104,39 @@ function startTeleconsulta() {
     DataService.saveAppointments(consultas);
 
     activeTeleconsultaId = novaTeleconsulta.id;
-    document.getElementById("tele-doctor-name").textContent = medicoSorteado;
-    document.getElementById("tele-doctor-spec").textContent = especialidade;
-    showPage("page-teleconsulta");
+    beginTeleconsultaSession(novaTeleconsulta);
 
     DataService.saveTelecount(DataService.getTelecount() + 1);
     updateScheduleActionButtons();
-
-    teleSeconds = 0;
-    document.getElementById("tele-timer").textContent = "00:00";
-    teleTimer = setInterval(() => {
-        teleSeconds++;
-        const minutos = String(Math.floor(teleSeconds / 60)).padStart(2, "0");
-        const segundos = String(teleSeconds % 60).padStart(2, "0");
-        document.getElementById("tele-timer").textContent = `${minutos}:${segundos}`;
-    }, 1000);
 }
 
 function endTeleconsulta() {
     if (activeTeleconsultaId) {
-        markTeleconsultaSessionEnded(activeTeleconsultaId);
+        markTeleconsultaReconnectAvailable(activeTeleconsultaId);
     }
     if (teleTimer) {
         clearInterval(teleTimer);
         teleTimer = null;
     }
+    stopTeleconsultaMedia();
     activeTeleconsultaId = null;
     showPage("page-dashboard");
-    showToast("Sessão encerrada", "error");
+    showToast("Chamada encerrada. Você tem 1 minuto para retornar.", "success");
 }
 
-// Botões de mutar microfone / desligar câmera (apenas visual, é uma simulação)
-document.getElementById("btn-mic").addEventListener("click", function () {
-    this.classList.toggle("bg-red-500");
-    this.classList.toggle("bg-gray-700");
-});
-document.getElementById("btn-cam").addEventListener("click", function () {
-    this.classList.toggle("bg-red-500");
-    this.classList.toggle("bg-gray-700");
-});
+document.getElementById("btn-mic").addEventListener("click", toggleTeleconsultaMicrophone);
+document.getElementById("btn-cam").addEventListener("click", toggleTeleconsultaCamera);
 
 
 // ==================== 11. UTILIDADES ====================
 function closeModal(id) {
-    document.getElementById(id).classList.add("hidden");
+    document.getElementById(id)?.classList.add("hidden");
 }
+
+document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    document.querySelectorAll(".modal-overlay:not(.hidden)").forEach((modal) => modal.classList.add("hidden"));
+});
 
 function formatDate(dateStr) {
     const d = new Date(dateStr + "T00:00:00");
@@ -2167,7 +3168,7 @@ function showToast(msg, type) {
     lucide.createIcons();
 
     // Impede escolher datas retroativas nos formulários de agendamento
-    const hoje = new Date().toISOString().split("T")[0];
+    const hoje = getLocalDateString();
     document.getElementById("apt-date").setAttribute("min", hoje);
     document.getElementById("exam-date").setAttribute("min", hoje);
 })();
