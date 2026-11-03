@@ -14,7 +14,10 @@ from supabase import create_client, Client
 
 
 def carregar_dotenv(path=".env"):
-    """Lê um arquivo .env simples sem depender de biblioteca extra."""
+    """Lê um arquivo .env simples sem depender de biblioteca extra.
+
+    setdefault preserva variáveis que já foram definidas pelo sistema ao iniciar o servidor.
+    """
     arquivo = os.path.join(os.path.dirname(__file__), path)
     if not os.path.exists(arquivo):
         return
@@ -28,6 +31,7 @@ def carregar_dotenv(path=".env"):
             os.environ.setdefault(chave.strip(), valor.strip().strip('"\''))
 
 
+# Carrega as configurações antes de criar o cliente, pois ele precisa das credenciais do Supabase.
 carregar_dotenv()
 
 app = Flask(__name__)
@@ -62,6 +66,7 @@ RECOVERY_TOKENS = {}
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+# Estas funções adaptam os dados recebidos pela API ao formato que o front-end espera.
 def montar_payload_usuario(dados):
     """Cria o payload do usuário respeitando os campos que o app usa."""
     payload = {
@@ -92,6 +97,7 @@ def normalizar_usuario(usuario):
 # ---------------------------------------------------------------------------
 # Rotas
 # ---------------------------------------------------------------------------
+# Cada rota representa uma operação HTTP chamada pelo app.js e responde em JSON.
 @app.route("/")
 def home():
     return "Backend conectado ao Supabase!"
@@ -99,7 +105,7 @@ def home():
 
 @app.route("/cadastro", methods=["POST"])
 def cadastro():
-    """Cadastra um novo usuário na tabela `usuarios`."""
+    """Valida os campos e cria o usuário no Supabase."""
     dados = request.json or {}
 
     campos_obrigatorios = ["nome", "email", "telefone", "senha"]
@@ -136,7 +142,7 @@ def cadastro():
 
 @app.route("/login", methods=["POST"])
 def login():
-    """Valida e-mail e senha e retorna os dados do usuário autenticado."""
+    """Procura um usuário com as credenciais informadas e devolve seus dados."""
     dados = request.json or {}
     email = dados.get("email")
     senha = dados.get("senha")
@@ -164,7 +170,7 @@ def login():
 
 @app.route("/solicitar-recuperacao", methods=["POST"])
 def solicitar_recuperacao():
-    """Valida e-mail/telefone e cria um token temporário de recuperação."""
+    """Confere os dados da conta e emite um código com validade de 15 minutos."""
     dados = request.json or {}
     email = dados.get("email")
     telefone = dados.get("telefone")
@@ -188,6 +194,7 @@ def solicitar_recuperacao():
 
     token = f"{secrets.randbelow(1000000):06d}"
     email_recuperacao = usuario["email"]
+    # Os códigos ficam apenas na memória do processo: reiniciar o servidor os invalida.
     RECOVERY_TOKENS[email_recuperacao] = {
         "token": token,
         "telefone": telefone,
@@ -203,7 +210,7 @@ def solicitar_recuperacao():
 
 @app.route("/confirmar-recuperacao", methods=["POST"])
 def confirmar_recuperacao():
-    """Valida token temporário e atualiza a senha do usuário."""
+    """Confere o token e atualiza a senha somente se ele ainda for válido."""
     dados = request.json or {}
     email = dados.get("email")
     telefone = dados.get("telefone")

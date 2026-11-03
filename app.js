@@ -17,6 +17,7 @@
  */
 
 // ==================== 1. CONFIGURAÇÃO ====================
+// Reúne endereços externos usados pela interface; concentrá-los aqui facilita trocar serviços sem procurar em todo o arquivo.
 // Endereço único da API. Se o backend mudar de porta/domínio, só precisa
 // atualizar aqui — antes esse valor estava repetido em cada fetch().
 const API_BASE_URL = "http://127.0.0.1:5000";
@@ -41,6 +42,7 @@ Object.entries(convenioLogoDomains).forEach(([oldUrl, domain]) => {
 // Centraliza o acesso ao localStorage. Se um dia o projeto passar a salvar
 // consultas/exames no backend, basta trocar a implementação aqui dentro —
 // o resto do app não precisa saber onde os dados estão guardados.
+// As chaves de dados pessoais também incluem o ID do usuário para separar as informações de cada conta neste navegador.
 const DataService = {
     getUsers() {
         return JSON.parse(localStorage.getItem("sp_users") || "[]");
@@ -341,6 +343,7 @@ function setFavoriteNetwork(networkName) {
 
 
 // ==================== 3. BASE DE MÉDICOS (MOCK) ====================
+// Lista demonstrativa usada para preencher o seletor de profissionais por especialidade; não é um cadastro oficial.
 const doctorsDB = {
     "Clínico Geral": ["Dr. Carlos Mendes", "Dra. Ana Oliveira", "Dr. Roberto Lima"],
     "Cardiologia": ["Dr. Fernando Costa", "Dra. Mariana Souza"],
@@ -383,6 +386,7 @@ const doctorsDB = {
 
 
 // ==================== 4. NAVEGAÇÃO ====================
+// A interface funciona como uma SPA: estas funções alternam páginas e abas sem recarregar o documento.
 /** Mostra a página (div.page) com o id informado e esconde as demais. */
 function showPage(pageId) {
     document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
@@ -438,6 +442,7 @@ function selectPlan(plan, notify = true) {
     if (notify) showToast(`Plano ${normalizedPlan} selecionado`, "success");
 }
 
+// As próximas funções verificam os limites do plano antes de liberar áreas e ações do painel.
 function getDependentLimit(plan) {
     return { "Básico": 2, Premium: 4, "Premium Saúde Plus": 6 }[plan] || 0;
 }
@@ -1052,6 +1057,7 @@ function requirePlanAccess(actionLabel = "esta área") {
 
 
 // ==================== 5. AUTENTICAÇÃO ====================
+// Os formulários desta seção validam os dados e conversam com o backend; o modo demonstração cria uma sessão local de exemplo.
 document.getElementById("register-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -1237,6 +1243,7 @@ function logout() {
 
 
 // ==================== 6. DASHBOARD ====================
+// O dashboard transforma os dados salvos em cartões e listas. renderDashboard coordena as renderizações das abas.
 function getDigitalCardThemeClass(plan) {
     if (plan === "Premium Saúde Plus") return "digital-card-theme-premium-plus";
     if (plan === "Premium") return "digital-card-theme-premium";
@@ -1716,12 +1723,81 @@ function renderHospitals() {
     lucide.createIcons();
 }
 
+// Agrupa consultas por médico para mostrar contatos sem duplicar profissionais.
 function renderContacts(appointments) {
     const container = document.getElementById("contacts-list");
     if (!container) return;
     const contacts = [...new Map(appointments.map((appointment) => [appointment.doctor, appointment])).values()];
     container.innerHTML = contacts.length ? contacts.map((contact) => `
-        <article class="bg-white rounded-2xl border border-gray-100 p-5 flex items-center justify-between gap-4"><div class="flex items-center gap-3"><div class="w-11 h-11 rounded-full bg-mint-100 flex items-center justify-center"><i data-lucide="stethoscope" class="w-5 h-5 text-mint-600"></i></div><div><p class="font-bold text-gray-900">${contact.doctor}</p><p class="text-sm text-gray-500">${contact.specialty}</p><p class="text-xs text-mint-600 mt-1">Disponível para conversa</p></div></div><button onclick="openChat('${contact.doctor}')" class="btn-primary text-white px-3 py-2 rounded-xl text-sm flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Falar</button></article>`).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Seus médicos aparecerão aqui após uma consulta.</p></div>`;
+        <article class="bg-white rounded-2xl border border-gray-100 p-5 flex flex-col gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-mint-100 flex items-center justify-center"><i data-lucide="stethoscope" class="w-5 h-5 text-mint-600"></i></div>
+                <div class="min-w-0"><p class="font-bold text-gray-900">${escapeHtml(contact.doctor || "Profissional não informado")}</p><p class="text-sm text-gray-500">${escapeHtml(contact.specialty || "Especialidade não informada")}</p><p class="text-xs text-mint-600 mt-1">Disponível para conversa</p></div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" data-doctor-history="${escapeHtml(contact.doctor || "")}" class="border border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold px-3 py-2 rounded-xl text-sm flex items-center gap-2 transition"><i data-lucide="clipboard-list" class="w-4 h-4"></i> Histórico e dados</button>
+                <button type="button" data-doctor-chat="${escapeHtml(contact.doctor || "")}" class="btn-primary text-white px-3 py-2 rounded-xl text-sm flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Falar</button>
+            </div>
+        </article>`).join("") : `<div class="bg-white rounded-2xl border border-gray-100 p-8 text-center md:col-span-2"><p class="text-gray-500">Seus médicos aparecerão aqui após uma consulta.</p></div>`;
+    container.querySelectorAll("[data-doctor-history]").forEach((button) => {
+        button.addEventListener("click", () => openDoctorHistory(button.dataset.doctorHistory));
+    });
+    container.querySelectorAll("[data-doctor-chat]").forEach((button) => {
+        button.addEventListener("click", () => openChat(button.dataset.doctorChat));
+    });
+    lucide.createIcons();
+}
+
+// Reúne todos os atendimentos do médico selecionado e apresenta seus dados no modal de Contatos.
+function openDoctorHistory(doctorName) {
+    const user = DataService.getCurrentUser();
+    if (!user) return;
+    const appointments = DataService.getAppointments()
+        .filter((appointment) => appointment.userId === user.id && appointment.doctor === doctorName)
+        .sort((a, b) => new Date(`${b.date}T${b.time || "00:00"}`) - new Date(`${a.date}T${a.time || "00:00"}`));
+    if (!appointments.length) {
+        showToast("Não há atendimentos registrados para este médico.", "error");
+        return;
+    }
+
+    const latestAppointment = appointments[0];
+    const doctorCrm = getDoctorCrm(latestAppointment);
+    const network = getNetworkDetails(latestAppointment.network);
+    document.getElementById("doctor-history-title").textContent = latestAppointment.doctor || "Profissional";
+    document.getElementById("doctor-history-subtitle").textContent = latestAppointment.specialty || "Histórico de atendimentos";
+    document.getElementById("doctor-history-content").innerHTML = `
+        ${detailSection("badge-check", "Identificação profissional", [
+            { label: "Nome", value: latestAppointment.doctor },
+            { label: "Especialidade", value: latestAppointment.specialty },
+            { label: "CRM", value: doctorCrm.value },
+        ])}
+        ${doctorCrm.simulated ? '<p class="text-xs text-gray-400">CRM fictício para demonstração; não representa um registro profissional real.</p>' : ""}
+        ${detailSection("map-pin", "Local de atendimento mais recente", [
+            { label: "Rede / clínica", value: latestAppointment.network },
+            { label: "Endereço", value: latestAppointment.address || network?.address },
+            { label: "Telefone", value: latestAppointment.phone || network?.phone },
+            { label: "Funcionamento", value: latestAppointment.hours || network?.hours },
+        ], "mint")}
+        <section class="border border-gray-100 rounded-xl p-4 bg-gray-50/60">
+            <div class="flex items-center gap-2 mb-3"><i data-lucide="history" class="w-4 h-4 text-brand-600"></i><h4 class="text-xs font-bold uppercase tracking-wide text-gray-500">Atendimentos registrados (${appointments.length})</h4></div>
+            <div class="space-y-3">${appointments.map((appointment) => {
+                const appointmentNetwork = getNetworkDetails(appointment.network);
+                const status = appointment.status || (isCompletedSchedule(appointment) ? "Concluída" : "Agendada");
+                return `<article class="border border-gray-100 rounded-xl p-3 bg-white">
+                    <div class="flex flex-wrap items-start justify-between gap-2">
+                        <div><p class="font-semibold text-gray-900">${appointment.date ? escapeHtml(formatDate(appointment.date)) : "Data não informada"}${appointment.time ? ` às ${escapeHtml(appointment.time)}` : ""}</p><p class="text-sm text-gray-500 mt-1">${escapeHtml(appointment.specialty || "Especialidade não informada")} • ${escapeHtml(appointment.type || "Modalidade não informada")}</p></div>
+                        <span class="text-xs font-semibold text-brand-600">${escapeHtml(status)}</span>
+                    </div>
+                    <div class="mt-3 space-y-1 text-xs text-gray-500">
+                        ${appointment.beneficiaryName ? `<p>Beneficiário: ${escapeHtml(appointment.beneficiaryName)}</p>` : ""}
+                        ${appointment.network ? `<p>Local: ${escapeHtml(appointment.network)}</p>` : ""}
+                        ${(appointment.address || appointmentNetwork?.address) ? `<p>Endereço: ${escapeHtml(appointment.address || appointmentNetwork.address)}</p>` : ""}
+                        ${appointment.protocol || appointment.protocolo ? `<p>Protocolo: ${escapeHtml(appointment.protocol || appointment.protocolo)}</p>` : ""}
+                    </div>
+                </article>`;
+            }).join("")}</div>
+        </section>`;
+    document.getElementById("modal-doctor-history").classList.remove("hidden");
     lucide.createIcons();
 }
 
@@ -2132,6 +2208,14 @@ function getNetworkDetails(networkName) {
     return networksDB.find((network) => network.name === networkName) || null;
 }
 
+function getDoctorCrm(appointment) {
+    if (appointment?.crm) return { value: appointment.crm, simulated: false };
+
+    const doctorName = String(appointment?.doctor || "Profissional");
+    const hash = [...doctorName].reduce((value, character) => (value * 31 + character.charCodeAt(0)) >>> 0, 0);
+    return { value: `CRM-SP ${String(100000 + (hash % 900000))}`, simulated: true };
+}
+
 function detailSection(icon, title, fields, tone = "brand") {
     const visibleFields = fields.filter((field) => field.value !== undefined && field.value !== null && String(field.value).trim() !== "");
     if (!visibleFields.length) return "";
@@ -2161,13 +2245,14 @@ function openAppointmentDetails(appointmentId) {
     const appointment = DataService.getAppointments().find((item) => item.id === appointmentId);
     if (!appointment) return;
     const network = getNetworkDetails(appointment.network);
+    const doctorCrm = getDoctorCrm(appointment);
     const status = appointment.status || (isTeleconsultaSessionEnded(appointment) ? "Sessão encerrada" : "Consulta agendada");
     document.getElementById("appointment-details-subtitle").textContent = `${appointment.doctor || "Profissional não informado"} • ${appointment.specialty || "Especialidade não informada"}`;
     document.getElementById("appointment-details-content").innerHTML = [
         detailSection("user", "Profissional", [
             { label: "Nome", value: appointment.doctor },
             { label: "Especialidade", value: appointment.specialty },
-            { label: "CRM", value: appointment.crm },
+            { label: "CRM", value: doctorCrm.value },
         ]),
         detailSection("calendar-days", "Data e horário", [
             { label: "Data", value: appointment.date ? formatDate(appointment.date) : "" },
@@ -2190,6 +2275,7 @@ function openAppointmentDetails(appointmentId) {
             { label: "Agendado em", value: appointment.scheduledAt || appointment.dataAgendamento },
             { label: "Observações", value: appointment.notes || appointment.observations },
         ]),
+        ...(doctorCrm.simulated ? ['<p class="text-xs text-gray-400">CRM fictício para demonstração; não representa um registro profissional real.</p>'] : []),
     ].join("");
     document.getElementById("appointment-details-actions").innerHTML = `
         <button type="button" onclick="closeModal('modal-appointment-details')" class="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm hover:bg-gray-50 transition">Fechar</button>
@@ -2507,6 +2593,7 @@ function updateExamTimeOptions() {
 
 
 // ==================== 7. AGENDAMENTO DE CONSULTAS ====================
+// Esta seção valida o plano e o horário, salva a consulta e atualiza os cartões do painel.
 function openAppointmentModal() {
     if (!requirePlanAccess("Consultas")) return;
     if (isPlanLimitReachedForAction("appointment")) return;
@@ -2597,6 +2684,7 @@ document.getElementById("appointment-form").addEventListener("submit", function 
         beneficiaryName: beneficiaryInfo.name,
         specialty: document.getElementById("apt-specialty").value,
         doctor: document.getElementById("apt-doctor").value,
+        crm: getDoctorCrm({ doctor: document.getElementById("apt-doctor").value }).value,
         date,
         time,
         type: document.getElementById("apt-type").value,
@@ -2773,6 +2861,7 @@ document.getElementById("dependent-responsible-cpf").addEventListener("input", f
 
 
 // ==================== 8. AGENDAMENTO DE EXAMES ====================
+// Além de marcar o horário, esta seção mostra orientações de preparo associadas ao tipo de exame.
 const examInstructions = {
     "Hemograma Completo": "Jejum não obrigatório. Evite esforço físico intenso antes da coleta e confirme a orientação do laboratório.",
     "Glicemia": "Necessário jejum de 8 horas, salvo orientação médica diferente. Água está liberada.",
@@ -2856,6 +2945,7 @@ document.getElementById("exam-form").addEventListener("submit", function (e) {
 
 
 // ==================== 9. CANCELAMENTO (MODAL DE CONFIRMAÇÃO) ====================
+// O alvo fica guardado até a confirmação explícita, evitando excluir dados ao clicar acidentalmente em cancelar.
 let deleteTarget = null;
 let favoriteReplacementTarget = "";
 
@@ -2916,6 +3006,7 @@ document.getElementById("confirm-delete-btn").addEventListener("click", function
 
 
 // ==================== 10. TELECONSULTA SIMULADA ====================
+// Controla o estado da chamada, mídia local e tentativa de reconexão durante uma teleconsulta de demonstração.
 let teleTimer = null;
 let teleReconnectTimer = null;
 let teleSeconds = 0;
@@ -3129,6 +3220,7 @@ document.getElementById("btn-cam").addEventListener("click", toggleTeleconsultaC
 
 
 // ==================== 11. UTILIDADES ====================
+// Funções compartilhadas por diferentes telas, como fechamento de modal, formatação de datas e notificações.
 function closeModal(id) {
     document.getElementById(id)?.classList.add("hidden");
 }
@@ -3159,6 +3251,7 @@ function showToast(msg, type) {
 
 
 // ==================== 12. INICIALIZAÇÃO ====================
+// Prepara a interface depois que o HTML existe: registra eventos iniciais e restaura a sessão quando aplicável.
 (function init() {
     setupProfileUi();
     renderConvenioDetails();
@@ -3175,6 +3268,7 @@ function showToast(msg, type) {
 
 
 // ==================== ELEMENT SDK (integração com o editor visual) ====================
+// Configuração opcional para o editor visual personalizar textos e cores sem alterar o fluxo principal do app.
 const defaultConfig = {
     site_title: "Saúde Plus",
     background_color: "#f9fafb",

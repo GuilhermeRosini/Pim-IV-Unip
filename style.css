@@ -1,4 +1,5 @@
 /* ==================== BASE ==================== */
+/* Regras globais mínimas compartilhadas por todas as páginas da aplicação. */
 * {
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
@@ -105,6 +106,7 @@ body {
 }
 
 /* ==================== CARTEIRINHA DIGITAL ==================== */
+/* Perspectiva e faces que permitem virar o cartão para revelar dados adicionais. */
 .digital-card-scene {
     perspective: 1200px;
     cursor: pointer;
@@ -458,6 +460,7 @@ body {
 }
 
 /* ==================== FORMULÁRIOS ==================== */
+/* Estilos de foco ajudam a identificar visualmente qual campo está sendo editado. */
 .input-style {
     transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -478,6 +481,7 @@ body {
 }
 
 /* ==================== NOTIFICAÇÕES (TOAST) ==================== */
+/* Mensagens breves fixas na tela para confirmar ações ou explicar erros. */
 .toast {
     position: fixed;
     top: 20px;
@@ -500,6 +504,7 @@ body {
 }
 
 /* ==================== BOLETO DE DEMONSTRAÇÃO ==================== */
+/* O documento mantém largura de impressão e pode rolar horizontalmente em telas pequenas. */
 .boleto-preview-wrap {
     overflow-x: auto;
     padding: 2px;
@@ -657,6 +662,7 @@ body {
 }
 
 /* ==================== MODAIS ==================== */
+/* A sobreposição centraliza diálogos e mantém o conteúdo rolável em telas menores. */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -707,6 +713,7 @@ body {
     min-height: 2.5rem;
 }
 
+/* Assistente e suporte ficam fixos sobre a tela sem ocupar espaço no layout do dashboard. */
 .assistant-fab {
     position: fixed;
     right: 24px;
@@ -830,6 +837,7 @@ body {
     background: #1570f5;
 }
 
+/* A área de teleconsulta organiza a preparação, a chamada e os controles de áudio e vídeo. */
 .teleconsulta-shell {
     min-height: 100dvh;
 }

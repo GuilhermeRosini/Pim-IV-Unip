@@ -11,7 +11,7 @@
   </script>
   <link rel="stylesheet" href="style.css">
   <script src="script.js"></script>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
     rel="stylesheet">
   <script>
@@ -31,8 +31,10 @@
 </head>
 
 <body class="h-full bg-gray-50 overflow-auto">
-  <!-- TOAST CONTAINER -->
+  <!-- A aplicação é uma SPA: o app.js alterna as páginas e seções abaixo sem recarregar o HTML. -->
+  <!-- As notificações são inseridas neste contêiner pelo JavaScript quando há sucesso ou erro. -->
   <div id="toast-container"></div><!-- ============ LANDING PAGE ============ -->
+  <!-- Página pública de apresentação; os botões encaminham para login, cadastro ou planos. -->
   <div id="page-landing" class="page active">
     <!-- Nav -->
     <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100">
@@ -414,6 +416,7 @@
       </div>
     </footer>
   </div><!-- ============ LOGIN PAGE ============ -->
+  <!-- Login e recuperação compartilham esta página; os formulários são alternados pelo app.js. -->
   <div id="page-login" class="page">
     <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-brand-50">
       <div class="w-full max-w-md fade-in">
@@ -504,6 +507,7 @@
       </div>
     </div>
   </div><!-- ============ REGISTER PAGE ============ -->
+  <!-- Cadastro coleta dados do titular e os envia para a API de autenticação. -->
   <div id="page-register" class="page">
     <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-mint-50">
       <div class="w-full max-w-md fade-in">
@@ -577,6 +581,7 @@
       </div>
     </div>
   </div><!-- ============ DASHBOARD ============ -->
+  <!-- Área autenticada. A navegação lateral e a versão mobile apontam para as mesmas seções dash-*. -->
   <div id="page-dashboard" class="page">
     <div class="flex min-h-screen">
       <!-- Sidebar -->
@@ -680,7 +685,7 @@
           </div>
         </header>
         <main class="p-4 sm:p-8">
-          <!-- DASH HOME -->
+          <!-- Início reúne resumo do plano, indicadores e próximos compromissos do usuário. -->
           <section id="dash-home" class="dash-section active fade-in">
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               <div class="bg-white rounded-2xl p-6 border border-gray-100 card-hover">
@@ -755,7 +760,8 @@
                   para começar!</p>
               </div>
             </div>
-          </section><!-- DASH APPOINTMENTS -->
+          </section>
+          <!-- Consultas mostra agendamentos ativos e o histórico de atendimentos concluídos. -->
           <section id="dash-appointments" class="dash-section fade-in">
             <div class="flex flex-col items-center text-center gap-3 mb-6">
               <h2 class="text-2xl font-bold text-gray-900">Consultas</h2><div class="flex flex-col items-center gap-2"><button type="button" data-schedule-action="appointment" onclick="openAppointmentModal()"
@@ -774,7 +780,8 @@
               <h3 class="text-lg font-bold text-gray-900 mb-3">Consultas concluídas</h3>
               <div id="appointments-history-list" class="space-y-4"></div>
             </div>
-          </section><!-- DASH EXAMS -->
+          </section>
+          <!-- Exames apresenta agendamentos e instruções de preparo. -->
           <section id="dash-exams" class="dash-section fade-in">
             <div class="flex flex-col items-center text-center gap-3 mb-6">
               <h2 class="text-2xl font-bold text-gray-900">Exames</h2><div class="flex flex-col items-center gap-2"><button type="button" data-schedule-action="exam" onclick="openExamModal()"
@@ -793,7 +800,8 @@
               <h3 class="text-lg font-bold text-gray-900 mb-3">Exames concluídos</h3>
               <div id="exams-history-list" class="space-y-4"></div>
             </div>
-          </section><!-- DASH REDE PRÓXIMA -->
+          </section>
+          <!-- Rede próxima lista locais de atendimento e opções de filtro. -->
           <section id="dash-network" class="dash-section fade-in">
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div>
@@ -809,7 +817,8 @@
                 </select></label>
             </div>
             <div id="hospital-list" class="grid md:grid-cols-2 gap-4"></div>
-          </section><!-- DASH CONTATOS -->
+          </section>
+          <!-- Contatos reúne médicos já consultados, conversa e histórico profissional. -->
           <section id="dash-contacts" class="dash-section fade-in">
             <div class="flex items-center justify-between mb-6">
               <div>
@@ -820,7 +829,7 @@
             </div>
             <div id="contacts-list" class="grid md:grid-cols-2 gap-4"></div>
           </section>
-          <!-- DASH FAMÍLIA -->
+          <!-- Dependentes permite gerenciar beneficiários vinculados à conta titular. -->
           <section id="dash-family" class="dash-section fade-in">
             <div class="flex flex-col items-center text-center gap-4 mb-6">
               <div>
@@ -833,7 +842,7 @@
             </div>
             <div id="dependents-list" class="grid md:grid-cols-2 gap-4"></div>
           </section>
-          <!-- DASH PLANOS -->
+          <!-- Planos apresenta opções e controla o acesso às funções do painel. -->
           <section id="dash-plans" class="dash-section fade-in">
             <div class="mb-8">
               <h2 class="text-2xl font-bold text-gray-900">Escolha seu plano</h2>
@@ -974,7 +983,7 @@
             <p class="text-xs text-gray-400 mt-6">Os valores exibidos são do acesso à plataforma Saúde Plus. A rede, a cobertura e as condições dependem das operadoras credenciadas, regras do convênio e eventuais coparticipações aplicáveis.</p>
             <p class="text-xs text-gray-500 mt-2 font-medium">Rede credenciada sob consulta de regras da operadora e coparticipação.</p>
           </section>
-          <!-- DASH PERFIL -->
+          <!-- Perfil concentra os dados pessoais que podem ser atualizados pela pessoa usuária. -->
           <section id="dash-profile" class="dash-section fade-in">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Meu Perfil</h2>
             <form id="profile-form" class="bg-white rounded-2xl border border-gray-100 p-6 max-w-xl space-y-4">
@@ -992,7 +1001,7 @@
                 alterações</button>
             </form>
           </section>
-          <!-- DASH CHAT -->
+          <!-- Chat guarda a conversa local associada ao médico selecionado. -->
           <section id="dash-chat" class="dash-section fade-in">
             <div class="flex items-center justify-between gap-3 mb-6">
               <h2 class="text-2xl font-bold text-gray-900">Conversar com o médico</h2>
@@ -1011,7 +1020,7 @@
                   aria-label="Enviar mensagem"><i data-lucide="send" class="w-5 h-5"></i></button></form>
             </div>
           </section>
-          <!-- DASH TELECONSULTA -->
+          <!-- Teleconsulta contém a interface de chamada simulada e seu estado de conexão. -->
           <section id="dash-teleconsulta" class="dash-section fade-in">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">Teleconsulta</h2>
             <div class="bg-white rounded-2xl border border-gray-100 p-8">
@@ -1064,7 +1073,8 @@
                 </div>
               </div>
             </div>
-          </section><!-- DASH CARD -->
+          </section>
+          <!-- Carteirinha exibe identificação digital e solicitações de cartão físico. -->
           <section id="dash-card" class="dash-section fade-in">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 mb-6">
               <div><h2 class="text-2xl font-bold text-gray-900">Carteirinha Digital</h2><p class="text-sm text-gray-500 mt-1">Toque ou clique na carteirinha para visualizar o verso.</p></div>
@@ -1124,7 +1134,9 @@
             data-lucide="phone-off" class="w-6 h-6 text-white"></i> </button>
       </div>
     </div>
-  </div><!-- ============ MODALS ============ --> <!-- Appointment Modal -->
+  </div><!-- ============ MODALS ============ -->
+  <!-- Modais são camadas reutilizáveis: o app.js preenche seus dados e controla abertura/fechamento. -->
+  <!-- Formulário para solicitar a versão física da carteirinha. -->
   <div id="modal-physical-card" class="modal-overlay hidden" onclick="if (event.target === this) closeModal('modal-physical-card')">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-6 sm:p-8 max-h-[92%] overflow-auto fade-in">
       <div class="flex items-start justify-between gap-4 mb-6"><div><h3 class="text-xl font-bold text-gray-900">Solicitar carteirinha física</h3><p class="text-sm text-gray-500 mt-1" id="physical-card-modal-subtitle">Preencha os dados de entrega.</p></div><button type="button" onclick="closeModal('modal-physical-card')" class="p-2 rounded-xl hover:bg-gray-100 transition" aria-label="Fechar"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
@@ -1163,6 +1175,19 @@
       </div>
       <div id="appointment-details-content" class="space-y-4"></div>
       <div id="appointment-details-actions" class="flex flex-col sm:flex-row gap-3 mt-6"></div>
+    </div>
+  </div>
+  <div id="modal-doctor-history" class="modal-overlay hidden" onclick="if (event.target === this) closeModal('modal-doctor-history')">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 p-6 sm:p-8 max-h-[90%] overflow-auto fade-in">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h3 id="doctor-history-title" class="text-xl font-bold text-gray-900">Histórico do médico</h3>
+          <p id="doctor-history-subtitle" class="text-sm text-gray-500 mt-1"></p>
+        </div>
+        <button type="button" onclick="closeModal('modal-doctor-history')" class="p-2 rounded-xl hover:bg-gray-100 transition" aria-label="Fechar"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
+      </div>
+      <div id="doctor-history-content" class="space-y-4"></div>
+      <button type="button" onclick="closeModal('modal-doctor-history')" class="w-full border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm mt-6 hover:bg-gray-50 transition">Fechar</button>
     </div>
   </div>
   <div id="modal-exam-details" class="modal-overlay hidden" onclick="if (event.target === this) closeModal('modal-exam-details')">
