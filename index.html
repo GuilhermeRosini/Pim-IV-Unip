@@ -462,35 +462,24 @@
           class="hidden bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
           <div>
             <h3 class="text-xl font-bold text-gray-900">Recuperar senha</h3>
-            <p class="text-sm text-gray-500 mt-1">Informe os dados cadastrados para receber o código de recuperação.</p>
+            <p class="text-sm text-gray-500 mt-1">Informe seu e-mail para receber um link seguro de redefinição.</p>
           </div>
           <div id="recovery-email-field"><label for="recovery-email"
               class="block text-sm font-semibold text-gray-700 mb-1.5">E-mail</label><input type="email"
               id="recovery-email" required
               class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
               placeholder="seu@email.com"></div>
-          <div id="recovery-phone-field" class="hidden"><label for="recovery-phone"
-              class="block text-sm font-semibold text-gray-700 mb-1.5">Número de telefone</label><input type="tel"
-              id="recovery-phone" maxlength="15" inputmode="numeric"
-              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
-              placeholder="(11) 99999-9999"></div>
-          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Receber
-            código</button>
-          <button type="button" id="recovery-other-method" onclick="toggleRecoveryPhone()"
-            class="w-full text-sm text-brand-600 font-semibold hover:underline">Tentar de outra maneira</button>
+          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Enviar
+              link de redefinição</button>
           <button type="button" onclick="hidePasswordRecovery()"
-            class="w-full text-sm text-gray-500 hover:text-gray-700">Voltar ao login</button>
+              class="w-full text-sm text-gray-500 hover:text-gray-700">Voltar ao login</button>
         </form>
         <form id="password-token-form"
           class="hidden bg-white rounded-2xl shadow-xl border border-gray-100 p-8 space-y-5">
           <div>
-            <h3 class="text-xl font-bold text-gray-900">Validar código</h3>
-            <p class="text-sm text-gray-500 mt-1">Digite o código recebido para continuar.</p>
+              <h3 class="text-xl font-bold text-gray-900">Criar nova senha</h3>
+              <p class="text-sm text-gray-500 mt-1">Defina sua senha após abrir o link enviado por e-mail.</p>
           </div>
-          <div><label for="recovery-token" class="block text-sm font-semibold text-gray-700 mb-1.5">Código de
-              recuperação</label><input id="recovery-token" required inputmode="numeric" maxlength="6"
-              class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
-              placeholder="Digite o código"></div>
           <div><label for="recovery-password" class="block text-sm font-semibold text-gray-700 mb-1.5">Nova
               senha</label><input type="password" id="recovery-password" required minlength="6"
               class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
@@ -501,13 +490,11 @@
               placeholder="Repita a nova senha"></div>
           <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Atualizar
             senha</button>
-          <button type="button" onclick="showPasswordRecovery()"
-            class="w-full text-sm text-gray-500 hover:text-gray-700">Alterar e-mail ou telefone</button>
         </form>
       </div>
     </div>
   </div><!-- ============ REGISTER PAGE ============ -->
-  <!-- Cadastro coleta dados do titular e os envia para a API de autenticação. -->
+  <!-- Cadastro envia a senha diretamente ao Supabase Auth e os demais campos como metadados do perfil. -->
   <div id="page-register" class="page">
     <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-mint-50">
       <div class="w-full max-w-md fade-in">
@@ -1643,6 +1630,8 @@
           aria-label="Enviar mensagem ao suporte"><i data-lucide="send" class="w-4 h-4"></i></button></form>
       </div>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase/config.js"></script>
   <script src="app.js"></script>
   <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9fe5acf200cfdecb',t:'MTc3OTIyMDY5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 

@@ -18,9 +18,50 @@
 
 // ==================== 1. CONFIGURAÇÃO ====================
 // Reúne endereços externos usados pela interface; concentrá-los aqui facilita trocar serviços sem procurar em todo o arquivo.
-// Endereço único da API. Se o backend mudar de porta/domínio, só precisa
-// atualizar aqui — antes esse valor estava repetido em cada fetch().
-const API_BASE_URL = "http://127.0.0.1:5000";
+// O navegador usa apenas a chave pública; a service_role nunca deve sair do servidor.
+const supabaseUrl = window.SUPABASE_CONFIG?.url || "";
+const supabaseAnonKey = window.SUPABASE_CONFIG?.anonKey || "";
+const supabaseClient = window.supabase
+    && supabaseUrl.startsWith("https://")
+    && !supabaseUrl.includes("SEU-PROJETO")
+    && supabaseAnonKey
+    && !supabaseAnonKey.startsWith("SUA_CHAVE")
+    ? window.supabase.createClient(window.SUPABASE_CONFIG.url, window.SUPABASE_CONFIG.anonKey)
+    : null;
+
+function getSupabaseClient() {
+    if (!supabaseClient) {
+        showToast("Configure a URL e a chave publicável do Supabase em supabase/config.js.", "error");
+        return null;
+    }
+    return supabaseClient;
+}
+
+async function loadAuthenticatedUser(authUser) {
+    const client = getSupabaseClient();
+    if (!client || !authUser) return null;
+
+    const { data: profile, error } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", authUser.id)
+        .maybeSingle();
+    if (error) throw error;
+
+    const metadata = authUser.user_metadata || {};
+    const user = {
+        id: authUser.id,
+        nome: profile?.nome || metadata.nome || "",
+        email: profile?.email || authUser.email || "",
+        telefone: profile?.telefone || metadata.telefone || "",
+        endereco: profile?.endereco || metadata.endereco || "",
+        cpf: profile?.cpf || metadata.cpf || "",
+        data_nascimento: profile?.data_nascimento || metadata.data_nascimento || "",
+        plano: profile?.plano || "Nenhum plano contratado",
+    };
+    DataService.setCurrentUser(user);
+    return user;
+}
 
 const convenioLogoDomains = {
     "https://logo.clearbit.com/hapvida.com.br": "hapvida.com.br",
@@ -44,13 +85,6 @@ Object.entries(convenioLogoDomains).forEach(([oldUrl, domain]) => {
 // o resto do app não precisa saber onde os dados estão guardados.
 // As chaves de dados pessoais também incluem o ID do usuário para separar as informações de cada conta neste navegador.
 const DataService = {
-    getUsers() {
-        return JSON.parse(localStorage.getItem("sp_users") || "[]");
-    },
-    saveUsers(users) {
-        localStorage.setItem("sp_users", JSON.stringify(users));
-    },
-
     getCurrentUser() {
         return JSON.parse(localStorage.getItem("sp_current_user") || "null");
     },
@@ -1057,7 +1091,7 @@ function requirePlanAccess(actionLabel = "esta área") {
 
 
 // ==================== 5. AUTENTICAÇÃO ====================
-// Os formulários desta seção validam os dados e conversam com o backend; o modo demonstração cria uma sessão local de exemplo.
+// Cadastro e login usam Supabase Auth; somente metadados do perfil são copiados para a tabela profiles.
 document.getElementById("register-form").addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -1070,8 +1104,8 @@ document.getElementById("register-form").addEventListener("submit", async functi
         endereco: document.getElementById("reg-address").value.trim(),
         cpf,
         data_nascimento: dataNascimento,
-        senha: document.getElementById("reg-password").value,
     };
+    const senha = document.getElementById("reg-password").value;
     const confirmacaoSenha = document.getElementById("reg-password-confirm").value;
     if (!usuario.nome || !usuario.email || !usuario.telefone || !usuario.endereco || !cpf || !dataNascimento) {
         showToast("Preencha todos os campos obrigatórios.", "error");
@@ -1086,29 +1120,46 @@ document.getElementById("register-form").addEventListener("submit", async functi
         showToast("Informe uma data de nascimento válida.", "error");
         return;
     }
-    if (usuario.senha.length < 6) {
+    if (senha.length < 6) {
         showToast("A senha deve ter pelo menos 6 caracteres", "error");
         return;
     }
-    if (usuario.senha !== confirmacaoSenha) {
+    if (senha !== confirmacaoSenha) {
         showToast("As senhas não coincidem", "error");
         return;
     }
-    usuario.plano = "Nenhum plano contratado";
 
     try {
-        const resposta = await fetch(`${API_BASE_URL}/cadastro`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(usuario),
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { data, error } = await client.auth.signUp({
+            email: usuario.email,
+            password: senha,
+            options: {
+                data: {
+                    nome: usuario.nome,
+                    telefone: usuario.telefone,
+                    endereco: usuario.endereco,
+                    cpf: usuario.cpf,
+                    data_nascimento: usuario.data_nascimento,
+                },
+                emailRedirectTo: `${window.location.origin}${window.location.pathname}`,
+            },
         });
-        const dados = await resposta.json();
+        if (error) throw error;
 
-        showToast(dados.mensagem, resposta.ok ? "success" : "error");
-        if (resposta.ok) this.reset();
+        this.reset();
+        if (data.session && data.user) {
+            await loadAuthenticatedUser(data.user);
+            showToast("Conta criada com sucesso!", "success");
+            showPage("page-dashboard");
+        } else {
+            showToast("Cadastro criado. Confirme seu e-mail para entrar.", "success");
+            showPage("page-login");
+        }
     } catch (erro) {
         console.error(erro);
-        showToast("Erro ao conectar com o servidor", "error");
+        showToast(erro.message || "Não foi possível criar a conta.", "error");
     }
 });
 
@@ -1119,103 +1170,61 @@ document.getElementById("login-form").addEventListener("submit", async function 
     const senha = document.getElementById("login-password").value;
 
     try {
-        const resposta = await fetch(`${API_BASE_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, senha }),
-        });
-        const dados = await resposta.json();
-
-        if (!dados.success) {
-            showToast(dados.mensagem, "error");
-            return;
-        }
-
-        DataService.setCurrentUser(dados.usuario);
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { data, error } = await client.auth.signInWithPassword({ email, password: senha });
+        if (error) throw error;
+        await loadAuthenticatedUser(data.user);
         showToast("Login realizado!", "success");
         this.reset();
         showPage("page-dashboard");
     } catch (erro) {
         console.error(erro);
-        showToast("Erro ao conectar com o servidor", "error");
+        showToast(erro.message || "Não foi possível entrar.", "error");
     }
 });
 
 document.getElementById("password-recovery-form").addEventListener("submit", async function (e) {
     e.preventDefault();
     const email = document.getElementById("recovery-email").value.trim().toLowerCase();
-    const telefone = document.getElementById("recovery-phone").value.trim();
-    const usingPhone = !document.getElementById("recovery-phone-field").classList.contains("hidden");
-    if ((!usingPhone && !email) || (usingPhone && telefone.replace(/\D/g, "").length < 10)) {
-        showToast(usingPhone ? "Informe um telefone válido" : "Informe um e-mail válido", "error");
-        return;
-    }
     try {
-        const resposta = await fetch(`${API_BASE_URL}/solicitar-recuperacao`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, ...(usingPhone ? { telefone } : {}) }),
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}${window.location.pathname}`,
         });
-        const dados = await resposta.json();
-        if (!resposta.ok) {
-            showToast(dados.mensagem || "Não foi possível validar os dados", "error");
-            return;
-        }
-        const recoveryEmail = dados.email || email;
-        localStorage.setItem("sp_recovery_email", recoveryEmail);
-        localStorage.setItem("sp_recovery_phone", telefone);
-        document.getElementById("password-recovery-form").classList.add("hidden");
-        document.getElementById("password-token-form").classList.remove("hidden");
-        if (dados.token) showToast(`Código de demonstração: ${dados.token}`, "success");
-        else showToast("Código de recuperação enviado", "success");
+        if (error) throw error;
+        this.reset();
+        hidePasswordRecovery();
+        showToast("Se a conta existir, você receberá um link para redefinir a senha.", "success");
     } catch (erro) {
-        const usuarios = DataService.getUsers();
-        const usuario = usuarios.find((item) => (!usingPhone && item.email.toLowerCase() === email) || (usingPhone && item.telefone.replace(/\D/g, "") === telefone.replace(/\D/g, "")));
-        if (!usuario) {
-            showToast("E-mail e telefone não conferem", "error");
-            return;
-        }
-        const token = String(Math.floor(100000 + Math.random() * 900000));
-        localStorage.setItem("sp_recovery_token", token);
-        localStorage.setItem("sp_recovery_email", usuario.email);
-        document.getElementById("password-recovery-form").classList.add("hidden");
-        document.getElementById("password-token-form").classList.remove("hidden");
-        showToast(`Código de demonstração: ${token}`, "success");
+        console.error(erro);
+        showToast(erro.message || "Não foi possível enviar o link de recuperação.", "error");
     }
 });
 
 document.getElementById("password-token-form").addEventListener("submit", async function (e) {
     e.preventDefault();
-    const email = localStorage.getItem("sp_recovery_email");
-    const telefone = localStorage.getItem("sp_recovery_phone");
-    const token = document.getElementById("recovery-token").value.trim();
     const senha = document.getElementById("recovery-password").value;
     const confirmacao = document.getElementById("recovery-password-confirm").value;
     if (senha.length < 6) return showToast("A nova senha deve ter pelo menos 6 caracteres", "error");
     if (senha !== confirmacao) return showToast("As senhas não coincidem", "error");
     try {
-        const resposta = await fetch(`${API_BASE_URL}/confirmar-recuperacao`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, telefone: telefone || null, token, senha }),
-        });
-        const dados = await resposta.json();
-        if (!resposta.ok) return showToast(dados.mensagem || "Código inválido ou expirado", "error");
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { error } = await client.auth.updateUser({ password: senha });
+        if (error) throw error;
+        await client.auth.signOut();
+        DataService.clearCurrentUser();
+        this.reset();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        hidePasswordRecovery();
+        document.getElementById("login-email").value = document.getElementById("recovery-email").value;
+        showToast("Senha atualizada. Entre usando a nova senha.", "success");
     } catch (erro) {
-        if (localStorage.getItem("sp_recovery_token") !== token) return showToast("Código inválido ou expirado", "error");
-        const usuarios = DataService.getUsers();
-        const usuario = usuarios.find((item) => item.email.toLowerCase() === email);
-        if (!usuario) return showToast("Usuário não encontrado no modo local", "error");
-        usuario.senha = senha;
-        DataService.saveUsers(usuarios);
+        console.error(erro);
+        showToast(erro.message || "Não foi possível atualizar a senha.", "error");
     }
-    localStorage.removeItem("sp_recovery_email");
-    localStorage.removeItem("sp_recovery_phone");
-    localStorage.removeItem("sp_recovery_token");
-    document.getElementById("login-email").value = localStorage.getItem("sp_recovery_email") || email;
-    this.reset();
-    hidePasswordRecovery();
-    showToast("Senha atualizada com sucesso. Faça login novamente.", "success");
 });
 
 function enterDemoMode() {
@@ -1235,7 +1244,18 @@ function enterDemoMode() {
     showPage("page-dashboard");
 }
 
-function logout() {
+async function logout() {
+    const user = DataService.getCurrentUser();
+    if (user && !user.modoDemo) {
+        const client = getSupabaseClient();
+        if (!client) return;
+        const { error } = await client.auth.signOut();
+        if (error) {
+            console.error(error);
+            showToast(error.message || "Não foi possível encerrar a sessão.", "error");
+            return;
+        }
+    }
     DataService.clearCurrentUser();
     showPage("page-landing");
     showToast("Sessão encerrada", "success");
@@ -1995,7 +2015,7 @@ function setupProfileUi() {
                 <input type="hidden" id="profile-icon" value="user">
             </div></div>
             <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-name">Nome completo</label><input id="profile-name" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
-            <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-email">E-mail</label><input id="profile-email" type="email" required class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
+            <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-email">E-mail</label><input id="profile-email" type="email" readonly class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"><p class="text-xs text-gray-500 mt-1">O e-mail é gerenciado pelo Supabase Auth.</p></div>
             <button type="button" onclick="togglePasswordChange()" id="change-password-toggle" class="border border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold px-4 py-3 rounded-xl text-sm transition">Alterar senha</button>
             <div id="password-change-panel" class="hidden rounded-xl border border-gray-100 bg-gray-50 p-4 space-y-4">
                 <div><label class="block text-sm font-semibold text-gray-700 mb-1.5" for="profile-current-password">Senha atual</label><input id="profile-current-password" type="password" autocomplete="current-password" class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"></div>
@@ -2070,15 +2090,48 @@ function saveProfile(e) {
         return;
     }
     user.nome = document.getElementById("profile-name").value.trim();
-    user.email = document.getElementById("profile-email").value.trim();
     user.telefone = document.getElementById("profile-phone").value.trim();
     user.endereco = document.getElementById("profile-address").value.trim();
     user.cpf = cpf;
     user.data_nascimento = dataNascimento;
     user.profileIcon = document.getElementById("profile-icon").value;
-    DataService.setCurrentUser(user);
-    renderDashboard();
-    showToast("Perfil atualizado", "success");
+    if (user.modoDemo) {
+        DataService.setCurrentUser(user);
+        renderDashboard();
+        showToast("Perfil atualizado no modo demonstração", "success");
+        return;
+    }
+
+    const client = getSupabaseClient();
+    if (!client) return;
+    client.auth.updateUser({
+        data: {
+            nome: user.nome,
+            telefone: user.telefone,
+            endereco: user.endereco,
+            cpf: user.cpf,
+            data_nascimento: user.data_nascimento,
+        },
+    }).then(async ({ error }) => {
+        if (error) throw error;
+        const { error: profileError } = await client
+            .from("profiles")
+            .update({
+                nome: user.nome,
+                telefone: user.telefone,
+                endereco: user.endereco,
+                cpf: user.cpf,
+                data_nascimento: user.data_nascimento,
+            })
+            .eq("id", user.id);
+        if (profileError) throw profileError;
+        DataService.setCurrentUser(user);
+        renderDashboard();
+        showToast("Perfil atualizado", "success");
+    }).catch((error) => {
+        console.error(error);
+        showToast(error.message || "Não foi possível salvar o perfil.", "error");
+    });
 }
 
 function togglePasswordChange() {
@@ -2089,17 +2142,13 @@ function togglePasswordChange() {
     button.textContent = isHidden ? "Alterar senha" : "Fechar alteração de senha";
 }
 
-function changeProfilePassword() {
+async function changeProfilePassword() {
     const user = DataService.getCurrentUser();
     const currentPassword = document.getElementById("profile-current-password")?.value || "";
     const newPassword = document.getElementById("profile-new-password")?.value || "";
     const confirmation = document.getElementById("profile-confirm-password")?.value || "";
     if (!currentPassword || !newPassword || !confirmation) {
         showToast("Preencha os três campos de senha.", "error");
-        return;
-    }
-    if (user.senha && currentPassword !== user.senha) {
-        showToast("A senha atual está incorreta.", "error");
         return;
     }
     if (newPassword.length < 6) {
@@ -2110,15 +2159,32 @@ function changeProfilePassword() {
         showToast("As novas senhas não coincidem.", "error");
         return;
     }
-    user.senha = newPassword;
-    DataService.setCurrentUser(user);
-    const panel = document.getElementById("password-change-panel");
-    panel?.classList.add("hidden");
-    document.getElementById("change-password-toggle").textContent = "Alterar senha";
-    document.getElementById("profile-current-password").value = "";
-    document.getElementById("profile-new-password").value = "";
-    document.getElementById("profile-confirm-password").value = "";
-    showToast("Senha alterada com sucesso.", "success");
+    if (user.modoDemo) {
+        showToast("A alteração de senha não está disponível na demonstração.", "error");
+        return;
+    }
+
+    const client = getSupabaseClient();
+    if (!client) return;
+    try {
+        const { data: loginData, error: loginError } = await client.auth.signInWithPassword({
+            email: user.email,
+            password: currentPassword,
+        });
+        if (loginError) throw loginError;
+        if (loginData.user.id !== user.id) throw new Error("A senha atual não confere com esta conta.");
+        const { error } = await client.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+        document.getElementById("password-change-panel")?.classList.add("hidden");
+        document.getElementById("change-password-toggle").textContent = "Alterar senha";
+        document.getElementById("profile-current-password").value = "";
+        document.getElementById("profile-new-password").value = "";
+        document.getElementById("profile-confirm-password").value = "";
+        showToast("Senha alterada com sucesso.", "success");
+    } catch (error) {
+        console.error(error);
+        showToast(error.message || "Não foi possível alterar a senha.", "error");
+    }
 }
 
 function openChat(doctor) {
@@ -2182,20 +2248,8 @@ function showPasswordRecovery() {
     document.getElementById("login-form").classList.add("hidden");
     document.getElementById("password-recovery-form").classList.remove("hidden");
     document.getElementById("password-token-form").classList.add("hidden");
-    document.getElementById("recovery-phone-field").classList.add("hidden");
     document.getElementById("recovery-email-field").classList.remove("hidden");
     document.getElementById("recovery-email").required = true;
-    document.getElementById("recovery-phone").required = false;
-    document.getElementById("recovery-other-method").textContent = "Tentar de outra maneira";
-}
-
-function toggleRecoveryPhone() {
-    const field = document.getElementById("recovery-phone-field");
-    const visible = field.classList.toggle("hidden") === false;
-    document.getElementById("recovery-email-field").classList.toggle("hidden", visible);
-    document.getElementById("recovery-email").required = !visible;
-    document.getElementById("recovery-phone").required = visible;
-    document.getElementById("recovery-other-method").textContent = visible ? "Usar apenas e-mail" : "Tentar de outra maneira";
 }
 
 function hidePasswordRecovery() {
@@ -2838,7 +2892,7 @@ document.getElementById("support-form").addEventListener("submit", function (eve
     messages.scrollTop = messages.scrollHeight;
 });
 
-document.querySelectorAll("#reg-phone, #profile-phone, #recovery-phone").forEach((input) => input.addEventListener("input", function () {
+document.querySelectorAll("#reg-phone, #profile-phone").forEach((input) => input.addEventListener("input", function () {
     const digits = this.value.replace(/\D/g, "").slice(0, 11);
     this.value = digits.length > 10 ? digits.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3") : digits.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
 }));
@@ -3252,11 +3306,37 @@ function showToast(msg, type) {
 
 // ==================== 12. INICIALIZAÇÃO ====================
 // Prepara a interface depois que o HTML existe: registra eventos iniciais e restaura a sessão quando aplicável.
-(function init() {
+(async function init() {
     setupProfileUi();
     renderConvenioDetails();
     populateBeneficiaryFields();
-    const user = DataService.getCurrentUser();
+    if (supabaseClient) {
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === "PASSWORD_RECOVERY" && session) {
+                document.getElementById("login-form").classList.add("hidden");
+                document.getElementById("password-recovery-form").classList.add("hidden");
+                document.getElementById("password-token-form").classList.remove("hidden");
+                document.getElementById("recovery-email").value = session.user.email || "";
+                showPage("page-login");
+            }
+        });
+    }
+
+    let user = null;
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.auth.getSession();
+            if (error) throw error;
+            if (data.session?.user) user = await loadAuthenticatedUser(data.session.user);
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Não foi possível restaurar a sessão.", "error");
+        }
+    }
+
+    const cachedUser = DataService.getCurrentUser();
+    if (!user && cachedUser?.modoDemo) user = cachedUser;
+    else if (!user) DataService.clearCurrentUser();
     showPage(user ? "page-dashboard" : "page-landing");
     lucide.createIcons();
 
@@ -3278,7 +3358,7 @@ const defaultConfig = {
     accent_color: "#0aab48",
 };
 
-window.elementSdk.init({
+window.elementSdk?.init({
     defaultConfig,
     onConfigChange: async (config) => {
         const title = config.site_title || defaultConfig.site_title;
