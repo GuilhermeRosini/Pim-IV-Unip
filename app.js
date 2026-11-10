@@ -37,6 +37,26 @@ function getSupabaseClient() {
     return supabaseClient;
 }
 
+// Traduz erros comuns do Auth em próximos passos claros para o teste acadêmico sem e-mail.
+function getAuthErrorMessage(error) {
+    const code = String(error?.code || "").toLowerCase();
+    const message = String(error?.message || "").toLowerCase();
+
+    if (code.includes("rate_limit") || message.includes("rate limit") || message.includes("email rate")) {
+        return "O Supabase limitou tentativas de cadastro. Desative a confirmação de e-mail em Authentication > Providers > Email e tente novamente mais tarde.";
+    }
+    if (code.includes("email_not_confirmed") || message.includes("email not confirmed")) {
+        return "Esta conta foi criada antes de desativar a confirmação. Para o teste, remova somente essa conta em Authentication > Users e cadastre-a novamente após desligar Confirm email.";
+    }
+    if (code.includes("invalid_credentials") || message.includes("invalid login credentials")) {
+        return "E-mail ou senha incorretos. Confira os dados ou remova a conta de teste em Authentication > Users e faça um novo cadastro.";
+    }
+    if (code.includes("user_already_exists") || message.includes("already registered") || message.includes("user already registered")) {
+        return "Este e-mail já tem uma conta. Entre com a senha cadastrada ou remova a conta de teste em Authentication > Users para cadastrá-la novamente.";
+    }
+    return error?.message || "Não foi possível concluir a autenticação.";
+}
+
 async function loadAuthenticatedUser(authUser) {
     const client = getSupabaseClient();
     if (!client || !authUser) return null;
@@ -469,6 +489,8 @@ function selectPlan(plan, notify = true) {
     user.plano = normalizedPlan;
     DataService.setCurrentUser(user);
     updatePlanCards(normalizedPlan);
+    // Atualiza o tema do cartão imediatamente, junto com a confirmação do plano.
+    renderDigitalCard(user, normalizedPlan);
     applyPlanLockState();
     updateScheduleActionButtons();
     renderDependents();
@@ -1154,12 +1176,12 @@ document.getElementById("register-form").addEventListener("submit", async functi
             showToast("Conta criada com sucesso!", "success");
             showPage("page-dashboard");
         } else {
-            showToast("Cadastro criado. Confirme seu e-mail para entrar.", "success");
+            showToast("A conta foi criada, mas o Auth não abriu uma sessão. Desative Confirm email no provedor Email e refaça o cadastro de teste.", "success");
             showPage("page-login");
         }
     } catch (erro) {
         console.error(erro);
-        showToast(erro.message || "Não foi possível criar a conta.", "error");
+        showToast(getAuthErrorMessage(erro), "error");
     }
 });
 
@@ -1180,7 +1202,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
         showPage("page-dashboard");
     } catch (erro) {
         console.error(erro);
-        showToast(erro.message || "Não foi possível entrar.", "error");
+        showToast(getAuthErrorMessage(erro), "error");
     }
 });
 
