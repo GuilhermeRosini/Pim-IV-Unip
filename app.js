@@ -49,7 +49,7 @@ function getAuthErrorMessage(error) {
         return "Esta conta foi criada antes de desativar a confirmação. Para o teste, remova somente essa conta em Authentication > Users e cadastre-a novamente após desligar Confirm email.";
     }
     if (code.includes("invalid_credentials") || message.includes("invalid login credentials")) {
-        return "E-mail ou senha incorretos. Confira os dados ou remova a conta de teste em Authentication > Users e faça um novo cadastro.";
+        return "E-mail ou senha incorretos.";
     }
     if (code.includes("user_already_exists") || message.includes("already registered") || message.includes("user already registered")) {
         return "Este e-mail já tem uma conta. Entre com a senha cadastrada ou remova a conta de teste em Authentication > Users para cadastrá-la novamente.";

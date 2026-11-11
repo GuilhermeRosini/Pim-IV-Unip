@@ -413,9 +413,10 @@
       </div>
     </footer>
   </div><!-- ============ LOGIN PAGE ============ -->
-  <!-- Login e recuperação compartilham esta página; os formulários são alternados pelo app.js. -->
+  <!-- O acesso desta tela usa a autenticação do Supabase; recuperação e login alternam pelo app.js. -->
   <div id="page-login" class="page">
-    <div class="min-h-full flex items-center justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-brand-50">
+    <!-- A mesma cor cobre toda a altura da tela, sem interromper o fundo abaixo do formulário. -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 bg-brand-50">
       <div class="w-full max-w-md fade-in">
         <div class="text-center mb-8">
           <div class="w-14 h-14 mx-auto rounded-xl btn-primary flex items-center justify-center mb-4">
@@ -437,18 +438,11 @@
               class="input-style w-full px-4 py-3 rounded-xl border border-gray-200 text-sm outline-none"
               placeholder="••••••••">
           </div>
+          <!-- O acesso de demonstração foi removido para usar as contas do banco de dados. -->
           <button type="submit"
             class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">Entrar</button>
           <button type="button" onclick="showPasswordRecovery()"
             class="w-full text-sm text-brand-600 font-semibold hover:underline">Esqueci minha senha</button>
-          <div class="relative flex items-center py-1">
-            <div class="flex-grow border-t border-gray-100"></div><span class="px-3 text-xs text-gray-400">ou</span>
-            <div class="flex-grow border-t border-gray-100"></div>
-          </div>
-          <button type="button" onclick="enterDemoMode()"
-            class="w-full border border-amber-400 text-amber-700 bg-amber-50 hover:bg-amber-100 font-semibold py-3 rounded-xl text-sm transition flex items-center justify-center gap-2"><i
-              data-lucide="flask-conical" class="w-4 h-4"></i> Entrar temporariamente (demonstração)</button>
-          <p class="text-xs text-center text-gray-400">Usa dados fictícios e não precisa do banco de dados.</p>
           <p class="text-center text-sm text-gray-500">Não tem conta? <button type="button"
               onclick="showPage('page-register')"
               class="text-brand-600 font-semibold hover:underline">Cadastre-se</button></p>
